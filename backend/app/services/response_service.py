@@ -33,7 +33,14 @@ def _get_question_value(answer: AnswerSubmission) -> Any:
 
 
 def _question_has_value(answer: AnswerSubmission) -> bool:
-    return _get_question_value(answer) is not None
+    value = _get_question_value(answer)
+    if value is None:
+        return False
+    if isinstance(value, str):
+        return bool(value.strip())
+    if isinstance(value, (list, tuple, dict)):
+        return bool(value)
+    return True
 
 
 def create_response(
@@ -53,6 +60,14 @@ def create_response(
     form_question_ids = {q.id for q in form.questions}
     question_map = {q.id: q for q in form.questions}
     answer_map = {a.question_id: a for a in submission.answers}
+
+    # A response contains one value per question. Catch duplicates before the
+    # database's unique constraint does, so callers receive a useful 422.
+    seen_question_ids = set()
+    for answer in submission.answers:
+        if answer.question_id in seen_question_ids:
+            errors[f"question_{answer.question_id}"] = "Answer supplied more than once"
+        seen_question_ids.add(answer.question_id)
 
     for answer in submission.answers:
         if answer.question_id not in form_question_ids:

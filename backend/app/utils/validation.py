@@ -32,7 +32,12 @@ def validate_option_value(
     for opt in options:
         if not isinstance(opt, dict):
             continue
-        if opt.get("id") == submitted or opt.get("label") == submitted:
+        option_id = opt.get("id")
+        option_label = opt.get("label")
+        if option_id == submitted or (
+            isinstance(option_label, str)
+            and option_label.casefold() == submitted.casefold()
+        ):
             return True
 
     return False

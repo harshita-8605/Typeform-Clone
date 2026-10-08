@@ -179,6 +179,15 @@ def upsert_form_questions(
         if qid not in incoming_ids:
             db.delete(existing_questions[qid])
 
+    # SQLite checks the unique (form_id, order_index) constraint for every
+    # UPDATE.  First move retained rows out of the target range, then assign
+    # their final positions below.  Without this two-question swaps can fail
+    # before SQLAlchemy has applied the second update.
+    for offset, question in enumerate(existing_questions.values(), start=1):
+        if question.id in incoming_ids:
+            question.order_index = -offset
+    db.flush()
+
     for idx, q_data in enumerate(questions):
         q_id = q_data.get("id")
         q_dict = {
@@ -214,6 +223,12 @@ def reorder_questions(
         return None
 
     q_map = {q.id: q for q in db_form.questions}
+
+    # See the matching note in upsert_form_questions: use a temporary range to
+    # make swaps safe under SQLite's immediate unique-constraint enforcement.
+    for offset, question in enumerate(q_map.values(), start=1):
+        question.order_index = -offset
+    db.flush()
 
     for idx, qid in enumerate(ordered_ids):
         if qid in q_map:

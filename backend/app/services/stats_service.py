@@ -43,7 +43,11 @@ def get_form_summary(db: Session, form_id: int) -> Optional[Dict[str, Any]]:
                     matched_id = val
                 else:
                     for oid, olabel in option_labels.items():
-                        if olabel == val:
+                        if (
+                            isinstance(olabel, str)
+                            and isinstance(val, str)
+                            and olabel.casefold() == val.casefold()
+                        ):
                             matched_id = oid
                             break
                 if matched_id:
@@ -93,7 +97,7 @@ def get_form_summary(db: Session, form_id: int) -> Optional[Dict[str, Any]]:
             stats["max"] = max(values) if values else None
             stats["average"] = round(sum(values) / len(values), 2) if values else None
 
-        elif question.type in ("short_text", "long_text"):
+        elif question.type in ("short_text", "long_text", "email"):
             samples = [a.value_text for a in answers if a.value_text][:5]
             stats["response_count"] = len(answers)
             stats["samples"] = samples

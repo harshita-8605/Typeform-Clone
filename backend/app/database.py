@@ -1,8 +1,12 @@
-import os
+from pathlib import Path
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./data/typeform.db"
+# Resolve from this module rather than the process working directory.  The API
+# and seed command can therefore be run from either `backend/` or the repo root.
+DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+SQLALCHEMY_DATABASE_URL = f"sqlite:///{DATA_DIR / 'typeform.db'}"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,

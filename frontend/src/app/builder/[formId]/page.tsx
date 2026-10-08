@@ -398,6 +398,20 @@ export default function BuilderPage({ params }: BuilderPageProps) {
     }
   };
 
+  const handleBuilderTabClick = (tab: string) => {
+    if (tab === "Results") {
+      router.push(`/results/${formIdNum}`);
+      return;
+    }
+    if (tab === "Share") {
+      void copyShareLink();
+      return;
+    }
+    if (tab === "Workflow" || tab === "Connect") {
+      showToast(`${tab} settings are coming soon`, "info");
+    }
+  };
+
   const previewQuestion = orderedQuestions[previewIndex];
 
   if (loading) {
@@ -431,12 +445,12 @@ export default function BuilderPage({ params }: BuilderPageProps) {
   const isDraft = form.status === "draft";
 
   return (
-    <div className="min-h-screen bg-[rgb(var(--background))] flex flex-col">
-      <header className="sticky top-0 z-20 bg-white border-b border-gray-100 h-16 flex items-center px-6 gap-4">
+    <div className="min-h-screen bg-[#f5f5f3] flex flex-col text-[#252523]">
+      <header className="sticky top-0 z-20 bg-white border-b border-[#e5e5e1] h-14 flex items-center px-4 gap-3">
         <button
           type="button"
           onClick={() => router.push("/workspace")}
-          className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-gray-100 text-[rgb(var(--text-secondary))] transition-colors"
+          className="flex items-center justify-center w-8 h-8 rounded-md hover:bg-[#f2f2ef] text-[#6e6e69] transition-colors"
           aria-label="Back"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -449,15 +463,30 @@ export default function BuilderPage({ params }: BuilderPageProps) {
           type="text"
           value={form.title}
           onChange={(e) => updateFormTitle(e.target.value)}
-          className="font-bold text-[20px] bg-transparent border-none outline-none border-b border-transparent hover:border-gray-200 focus:border-[rgb(var(--brand))] transition-colors px-1 py-0.5 min-w-[200px] max-w-md rounded-none"
+          className="font-semibold text-[14px] bg-transparent border-none outline-none border-b border-transparent hover:border-gray-200 focus:border-[#242424] transition-colors px-1 py-0.5 min-w-[130px] max-w-[230px] rounded-none"
           placeholder="Untitled form"
         />
 
-        <div className="flex-1 flex items-center justify-center">
-          <div className="flex items-center gap-1.5 text-sm">
+        <div className="flex-1 flex items-center justify-center gap-1">
+          {["Content", "Workflow", "Connect", "Share", "Results"].map((tab, index) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => handleBuilderTabClick(tab)}
+              className={cn(
+                "h-8 px-3 text-[13px] font-medium rounded-md transition-colors",
+                index === 0
+                  ? "bg-[#eeeeeb] text-[#222]"
+                  : "text-[#6c6c68] hover:bg-[#f5f5f3]"
+              )}
+            >
+              {tab}
+            </button>
+          ))}
+          <div className="hidden xl:flex items-center gap-1.5 text-[12px] ml-3 text-[#777]">
             <span
               className={cn(
-                "w-2 h-2 rounded-full",
+                "w-1.5 h-1.5 rounded-full",
                 saveStatus === "saving"
                   ? "bg-[rgb(var(--brand))] animate-pulse"
                   : saveStatus === "saved"
@@ -478,11 +507,11 @@ export default function BuilderPage({ params }: BuilderPageProps) {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
             onClick={copyShareLink}
-            className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 text-[rgb(var(--text-secondary))] transition-colors"
+            className="flex items-center justify-center w-8 h-8 rounded-md hover:bg-[#f2f2ef] text-[#6e6e69] transition-colors"
             aria-label="Copy share link"
             title="Copy share link"
           >
@@ -496,7 +525,7 @@ export default function BuilderPage({ params }: BuilderPageProps) {
             type="button"
             onClick={() => setSettingsOpen((o) => !o)}
             className={cn(
-              "flex items-center justify-center w-10 h-10 rounded-full transition-colors",
+              "flex items-center justify-center w-8 h-8 rounded-md transition-colors",
               settingsOpen
                 ? "bg-gray-100 text-[rgb(var(--text-primary))]"
                 : "hover:bg-gray-100 text-[rgb(var(--text-secondary))]"
@@ -513,10 +542,10 @@ export default function BuilderPage({ params }: BuilderPageProps) {
             type="button"
             onClick={isDraft ? handlePublish : handleUnpublish}
             className={cn(
-              "h-10 px-5 rounded-full font-medium text-white transition-colors text-sm flex items-center gap-1.5",
+              "h-9 px-4 rounded-md font-semibold text-white transition-colors text-[13px] flex items-center gap-1.5",
               isDraft
-                ? "bg-[rgb(var(--brand))] hover:bg-[rgb(var(--brand-dark))]"
-                : "bg-gray-800 hover:bg-gray-900"
+                ? "bg-[#242424] hover:bg-black"
+                : "bg-[#5d5d58] hover:bg-[#3d3d39]"
             )}
           >
             {isDraft ? (
@@ -534,25 +563,26 @@ export default function BuilderPage({ params }: BuilderPageProps) {
       </header>
 
       <div className="flex flex-1 relative">
-        <aside className="w-64 border-r border-gray-100 bg-[rgb(var(--surface))]/30 h-[calc(100vh-4rem)] overflow-auto p-5 flex-shrink-0">
-          <h3 className="text-[13px] font-semibold uppercase tracking-wide text-[rgb(var(--text-secondary))] mb-4">
-            Add question
-          </h3>
+        <aside className="w-[252px] border-r border-[#e5e5e1] bg-white h-[calc(100vh-3.5rem)] overflow-auto p-4 flex-shrink-0">
+          <div className="flex items-center justify-between mb-4 px-1">
+            <h3 className="text-[12px] font-semibold text-[#343431]">Content</h3>
+            <button type="button" className="h-7 px-2 rounded-md bg-[#242424] text-white text-[12px] font-semibold" onClick={() => appendQuestion('short_text')}>+ Add</button>
+          </div>
+          <h4 className="text-[11px] font-semibold uppercase tracking-[.06em] text-[#85857f] mb-2 px-1">
+            Question types
+          </h4>
 
           {QUESTION_LIBRARY.map((group) => (
             <div key={group.group} className="mb-5">
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 mb-2 px-1">
-                {group.group}
-              </div>
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-0.5">
                 {group.items.map((item) => (
                   <button
                     key={item.type}
                     type="button"
                     onClick={() => appendQuestion(item.type)}
-                    className="group flex items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 font-medium text-sm text-[rgb(var(--text-primary))] hover:border-[rgb(var(--brand))] hover:text-[rgb(var(--brand))] transition-colors"
+                    className="group flex items-center gap-3 rounded-md px-3 py-2 text-left font-medium text-[13px] text-[#454541] hover:bg-[#f2f2ef] hover:text-[#191918] transition-colors"
                   >
-                    <span className="w-6 h-6 flex items-center justify-center rounded-md bg-gray-50 text-gray-500 group-hover:bg-[rgb(var(--brand))]/10 group-hover:text-[rgb(var(--brand))] transition-colors text-xs">
+                    <span className="w-5 h-5 flex items-center justify-center rounded text-[#777] group-hover:text-[#191918] transition-colors text-xs">
                       {item.icon}
                     </span>
                     {item.label}
@@ -562,11 +592,11 @@ export default function BuilderPage({ params }: BuilderPageProps) {
             </div>
           ))}
 
-          <div className="pt-3 border-t border-gray-200/60 space-y-1.5 mt-4">
+          <div className="pt-3 border-t border-[#ececea] space-y-0.5 mt-4">
             {["File upload", "Payment"].map((label) => (
               <div
                 key={label}
-                className="flex items-center gap-3 rounded-2xl border border-gray-200 bg-white/60 px-4 py-3 font-medium text-sm text-gray-400 grayscale cursor-not-allowed opacity-70"
+                className="flex items-center gap-3 rounded-md px-3 py-2 font-medium text-[13px] text-gray-400 grayscale cursor-not-allowed opacity-70"
                 title="Coming soon"
               >
                 <span className="w-6 h-6 flex items-center justify-center rounded-md bg-gray-50 text-xs">
@@ -578,7 +608,7 @@ export default function BuilderPage({ params }: BuilderPageProps) {
           </div>
         </aside>
 
-        <main className="flex-1 overflow-auto p-8 bg-gray-50/40">
+        <main className="flex-1 overflow-auto p-6 sm:p-10 bg-[#f5f5f3]">
           {orderedQuestions.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center py-16">
               <div className="text-5xl mb-4">👋</div>
@@ -633,13 +663,13 @@ export default function BuilderPage({ params }: BuilderPageProps) {
           )}
         </main>
 
-        <aside className="w-96 border-l border-gray-100 bg-white h-[calc(100vh-4rem)] overflow-auto p-6 flex-shrink-0">
-          <h3 className="text-[13px] font-semibold uppercase tracking-wide text-[rgb(var(--text-secondary))] mb-5">
+        <aside className="w-[336px] border-l border-[#e5e5e1] bg-white h-[calc(100vh-3.5rem)] overflow-auto p-4 flex-shrink-0">
+          <h3 className="text-[12px] font-semibold text-[#343431] mb-4 px-1">
             Preview
           </h3>
 
           <div className="mx-auto max-w-sm">
-            <div className="rounded-[2rem] border border-gray-100 shadow-inner bg-[rgb(var(--surface))]/30 p-5 min-h-[560px] flex flex-col">
+            <div className="rounded-lg border border-[#dededb] bg-[#fcfcfb] p-4 min-h-[560px] flex flex-col shadow-[0_1px_2px_rgba(0,0,0,.03)]">
               <div className="flex justify-center mb-3">
                 <div className="h-1.5 w-16 bg-gray-200 rounded-full" />
               </div>

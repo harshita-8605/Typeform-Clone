@@ -4,6 +4,18 @@ export function getApiUrl(path: string): string {
   return `${base}${normalizedPath}`;
 }
 
+export class ApiError extends Error {
+  readonly status: number;
+  readonly data: unknown;
+
+  constructor(status: number, message: string, data: unknown) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+    this.data = data;
+  }
+}
+
 async function request<T>(
   path: string,
   options: RequestInit = {}
@@ -28,7 +40,7 @@ async function request<T>(
   const contentType = response.headers.get("content-type");
   const isJson = contentType?.includes("application/json");
 
-  let data: any = null;
+  let data: unknown = null;
   if (isJson) {
     try {
       data = await response.json();
@@ -40,11 +52,25 @@ async function request<T>(
   }
 
   if (!response.ok) {
-    const message =
-      (data && typeof data === "object" && "message" in data && data.message) ||
-      (typeof data === "string" && data.length > 0 && data) ||
-      `Request failed with status ${response.status}`;
-    throw new Error(message);
+    let message = `Request failed with status ${response.status}`;
+    if (
+      data &&
+      typeof data === "object" &&
+      "message" in data &&
+      typeof data.message === "string"
+    ) {
+      message = data.message;
+    } else if (
+      data &&
+      typeof data === "object" &&
+      "detail" in data &&
+      typeof data.detail === "string"
+    ) {
+      message = data.detail;
+    } else if (typeof data === "string" && data.length > 0) {
+      message = data;
+    }
+    throw new ApiError(response.status, message, data);
   }
 
   return data as T;

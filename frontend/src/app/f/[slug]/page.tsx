@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useToast } from "@/hooks/useToast";
-import { api } from "@/lib/api";
+import { ApiError, api } from "@/lib/api";
 import { validateAnswer } from "@/lib/validators";
 import QuestionRenderer from "@/components/questions/QuestionRenderer";
 import { cn } from "@/lib/utils";
@@ -239,36 +239,44 @@ export default function FormViewPage({ params }: FormViewPageProps) {
       setSubmittedResponseId(res?.id);
       setStatus("done");
     } catch (err: any) {
-      const detail = err?.message ?? "";
-      try {
-        const m = detail.match(/\{[\s\S]*\}/);
-        if (m) {
-          const parsed = JSON.parse(m[0]);
-          if (parsed?.detail?.errors && typeof parsed.detail.errors === "object") {
-            const mapped: Record<number, string> = {};
-            for (const [k, v] of Object.entries(parsed.detail.errors)) {
-              const m2 = k.match(/question_(\d+)/);
-              if (m2) mapped[Number(m2[1])] = String(v);
-            }
-            if (Object.keys(mapped).length > 0) {
-              setQuestionErrors((prev) => ({ ...prev, ...mapped }));
-              const firstQid = Object.keys(mapped).map(Number)[0];
-              const idx = questions.findIndex((q) => q.id === firstQid);
-              if (idx >= 0 && idx !== currentIdx) {
-                setDirection(idx > currentIdx ? 1 : -1);
-                setCurrentIdx(idx);
-              }
-              triggerShake();
-              setStatus("ready");
-              showToast("Please correct the highlighted fields", "error");
-              return;
-            }
-          }
+      const data = err instanceof ApiError ? err.data : null;
+      const detail =
+        data && typeof data === "object" && "detail" in data ? data.detail : null;
+      const errors =
+        detail &&
+        typeof detail === "object" &&
+        "errors" in detail &&
+        detail.errors &&
+        typeof detail.errors === "object"
+          ? detail.errors
+          : null;
+
+      if (errors) {
+        const mapped: Record<number, string> = {};
+        for (const [key, value] of Object.entries(errors)) {
+          const match = key.match(/^question_(\d+)$/);
+          if (match) mapped[Number(match[1])] = String(value);
         }
-      } catch {
-        // ignore parse errors
+        if (Object.keys(mapped).length > 0) {
+          setQuestionErrors((prev) => ({ ...prev, ...mapped }));
+          const firstQid = Object.keys(mapped).map(Number)[0];
+          const idx = questions.findIndex((q) => q.id === firstQid);
+          if (idx >= 0 && idx !== currentIdx) {
+            setDirection(idx > currentIdx ? 1 : -1);
+            setCurrentIdx(idx);
+          }
+          triggerShake();
+          setStatus("ready");
+          showToast("Please correct the highlighted fields", "error");
+          return;
+        }
       }
-      showToast("Something went wrong submitting — please try again.", "error");
+      showToast(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong submitting — please try again.",
+        "error"
+      );
       setStatus("ready");
     }
   }, [
@@ -343,6 +351,12 @@ export default function FormViewPage({ params }: FormViewPageProps) {
           handleBack();
         }
         return;
+      }
+
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        if (isTextarea || isTextInput) return;
+        e.preventDefault();
+        okButtonRef.current?.click();
       }
     };
 

@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 export function TypeformLogo({ className }: { className?: string }) {
   return (
     <div className={cn("flex items-center gap-2 shrink-0", className)}>
-      <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[rgb(var(--tf-purple))] text-white shadow-card">
+      <span className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-[#262626] text-white">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path
             d="M7 7h10v3.2H13.5v9.6h-3v-9.6H7V7z"
@@ -18,8 +18,8 @@ export function TypeformLogo({ className }: { className?: string }) {
           />
         </svg>
       </span>
-      <span className="text-[18px] font-semibold text-[rgb(var(--tf-text))] tracking-tight">
-        Typeform
+      <span className="text-[18px] font-semibold text-[#242424] tracking-[-.04em]">
+        typeform
       </span>
     </div>
   );
@@ -36,7 +36,7 @@ export function TopNav({
   const isWorkspace = pathname === "/workspace";
 
   return (
-    <header className="tf-top-nav flex items-center px-4 md:px-6 gap-4">
+    <header className="h-14 shrink-0 border-b border-[#e8e8e6] bg-white flex items-center px-4 md:px-6 gap-4">
       <Link href="/workspace" className="shrink-0">
         <TypeformLogo />
       </Link>
@@ -48,10 +48,10 @@ export function TopNav({
           <Link
             href="/workspace"
             className={cn(
-              "inline-flex items-center gap-1.5 text-[14px] rounded-full px-3 py-1.5 transition-colors",
-              isWorkspace
-                ? "font-semibold text-[rgb(var(--tf-text))] bg-[rgb(var(--tf-bg))]"
-                : "font-medium text-[rgb(var(--tf-muted))] hover:text-[rgb(var(--tf-text))] hover:bg-[rgb(var(--tf-bg))]"
+            "inline-flex items-center gap-1.5 text-[13px] rounded-md px-3 py-1.5 transition-colors",
+            isWorkspace
+                ? "font-semibold text-[#242424] bg-[#efefed]"
+                : "font-medium text-[#686864] hover:text-[#242424] hover:bg-[#f4f4f2]"
             )}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -70,7 +70,7 @@ export function TopNav({
       <div className="flex items-center gap-1 shrink-0">
         <button
           type="button"
-          className="tf-btn-icon"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[#777] hover:bg-[#f4f4f2] hover:text-[#242424]"
           aria-label="Help"
           title="Help"
         >
@@ -82,7 +82,7 @@ export function TopNav({
         </button>
         <button
           type="button"
-          className="tf-btn-icon"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[#777] hover:bg-[#f4f4f2] hover:text-[#242424]"
           aria-label="Notifications"
           title="Notifications"
         >
@@ -93,7 +93,7 @@ export function TopNav({
         </button>
         <button
           type="button"
-          className="ml-1 inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[rgb(var(--tf-purple))] to-[rgb(var(--tf-purple-light))] text-white text-[13px] font-semibold shadow-card hover:shadow-hover transition-shadow"
+          className="ml-1 inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#e7d4c6] text-[#493225] text-[12px] font-semibold"
           aria-label="Profile"
           title="H — Profile"
         >

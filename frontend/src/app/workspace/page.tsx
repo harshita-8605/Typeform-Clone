@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/useToast";
 import { api } from "@/lib/api";
@@ -17,6 +17,8 @@ export default function WorkspacePage() {
 
   const [forms, setForms] = useState<FormListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState<"updated" | "title" | "responses">("updated");
 
   const [createOpen, setCreateOpen] = useState(false);
   const [createTitle, setCreateTitle] = useState("");
@@ -40,6 +42,17 @@ export default function WorkspacePage() {
   useEffect(() => {
     fetchForms();
   }, [fetchForms]);
+
+  const visibleForms = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return forms
+      .filter((form) => !query || form.title.toLowerCase().includes(query))
+      .sort((a, b) => {
+        if (sort === "title") return a.title.localeCompare(b.title);
+        if (sort === "responses") return b.response_count - a.response_count;
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      });
+  }, [forms, search, sort]);
 
   const openCreate = () => {
     setCreateTitle("");
@@ -87,51 +100,47 @@ export default function WorkspacePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[rgb(var(--background))]">
-      <header
-        className="sticky top-0 z-30 h-16 bg-[rgb(var(--background))]/80 backdrop-blur border-b border-gray-100"
-      >
-        <div className="h-full max-w-7xl mx-auto px-6 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="28"
-              height="28"
-              viewBox="0 0 24 24"
-              fill="rgb(var(--brand))"
-            >
-              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm4.5 17.25h-9v-1.5h9v1.5zm1.5-3h-12v-1.5h12v1.5zm0-3H7.5v-1.5h10.5v1.5zm0-3h-9v-1.5h9v1.5z" />
-            </svg>
-            <span
-              className="text-[22px] font-bold tracking-tight"
-              style={{ color: "rgb(var(--brand))" }}
-            >
-              Typeform
-            </span>
-          </div>
-          <div className="flex items-center">
-            <div
-              className="flex h-10 w-10 items-center justify-center rounded-full text-white font-semibold text-sm"
-              style={{ backgroundColor: "rgb(var(--brand))" }}
-            >
-              H
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen bg-[#f8f8f8] text-[#463d49] flex flex-col">
+      <header className="h-[74px] shrink-0 bg-white border-b border-[#eeeeef] flex items-center justify-between px-7">
+        <div className="flex items-center gap-3"><span className="h-10 w-2 rounded-full bg-[#29212b]" /><span className="h-10 w-10 rounded-[10px] bg-[#a669cb] text-white flex items-center justify-center text-[20px]">H</span><span className="font-medium text-[17px]">harshitanarula08</span><span className="text-[#766f77]">⌄</span></div>
+        <div className="flex items-center gap-8 text-[16px] text-[#6b636c]"><button type="button">⌘ Integrations</button><button type="button">♜ Brand kit</button><button type="button" className="rounded-xl bg-[#16806e] px-5 py-3 text-white font-medium">View plans</button><button type="button">?</button><span className="h-10 w-10 rounded-full bg-[#e8cfff] flex items-center justify-center text-[#593466]">HN</span></div>
       </header>
+      <nav className="h-[78px] mx-5 mt-0 rounded-t-[18px] bg-[#f1f1f3] border-b border-[#e8e7ea] flex items-center gap-9 px-8 text-[16px] font-medium text-[#6a626b]">
+        <span className="h-full flex items-center border-b-[3px] border-[#4b3b50] text-[#45394a]">▣ &nbsp; Forms</span><span>♧ &nbsp; Contacts</span><span>♧ &nbsp; Automations</span><span>⌁ &nbsp; Insights <i className="ml-1 rounded-full border border-[#82ccc2] bg-white px-1.5 py-0.5 not-italic text-[12px] text-[#287a73]">◇</i></span><span>▧ &nbsp; Pages <i className="ml-1 rounded-lg border border-[#9dcce9] bg-[#edf8ff] px-2 py-0.5 not-italic text-[12px] text-[#397498]">Beta</i></span><span className="border-l border-[#d9d7da] pl-8">◉ &nbsp; Research Flow</span>
+      </nav>
+      <div className="flex flex-1 min-h-0">
+      <aside className="hidden lg:flex w-[362px] min-h-full shrink-0 border-r border-[#e8e8e6] bg-[#fbfbfc] px-5 py-6 flex-col">
+        <button type="button" onClick={openCreate} className="h-11 w-full rounded-xl bg-[#403343] px-3 text-center text-[16px] font-semibold text-white hover:bg-[#332735] transition-colors flex items-center justify-center gap-2">
+          <span className="text-[24px] leading-none font-normal">+</span> Create form
+        </button>
+        <nav className="mt-7 space-y-1 text-[14px]">
+          <p className="px-3 pb-2 text-[11px] tracking-[.08em] font-semibold text-[#777]">WORKSPACES</p>
+          <button type="button" className="w-full flex items-center gap-2 rounded-md bg-[#efefed] px-3 py-2 text-left font-medium">
+            <span className="h-5 w-5 rounded-full bg-[#dcdad6] flex items-center justify-center text-[11px]">⌂</span> My workspace
+          </button>
+          <button type="button" className="w-full flex items-center gap-2 rounded-md px-3 py-2 text-left text-[#5f5f5c] hover:bg-[#f4f4f2]">
+            <span className="text-[17px]">+</span> Create workspace
+          </button>
+        </nav>
+        <nav className="mt-8 space-y-1 text-[14px] text-[#5f5f5c]">
+          <button type="button" className="w-full flex items-center gap-3 rounded-md px-3 py-2 text-left hover:bg-[#f4f4f2]"><span>◫</span> Apps & integrations</button>
+          <button type="button" className="w-full flex items-center gap-3 rounded-md px-3 py-2 text-left hover:bg-[#f4f4f2]"><span>◇</span> Brand kit</button>
+        </nav>
+        <div className="mt-auto border-t border-[#ececea] pt-4">
+          <button type="button" className="w-full flex items-center gap-3 rounded-md px-3 py-2 text-left text-[14px] hover:bg-[#f4f4f2]">
+            <span className="h-7 w-7 rounded-full bg-[#e7d4c6] flex items-center justify-center text-[12px] font-semibold">H</span> Harshita
+          </button>
+        </div>
+      </aside>
 
-      <main className="max-w-7xl mx-auto px-6 py-10">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
-          <div>
-            <h1 className="text-[28px] font-bold text-[rgb(var(--text-primary))] leading-tight mb-2">
-              My Workspace
-            </h1>
-            <p className="text-[15px] text-[rgb(var(--text-secondary))] max-w-xl">
-              Manage your typeforms and see how they&apos;re performing
-            </p>
-          </div>
-          <div className="flex-shrink-0">
-            <Button size="md" onClick={openCreate}>
+      <main className="min-w-0 flex-1">
+        <section className="max-w-[1240px] mx-auto px-5 sm:px-8 py-9 sm:py-12">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 mb-9">
+            <div>
+              <p className="text-[13px] text-[#777] mb-2">Workspace</p>
+              <h1 className="text-[30px] font-semibold tracking-[-.045em] text-[#20201f] leading-tight">My workspace</h1>
+            </div>
+            <Button size="md" onClick={openCreate} className="!rounded-lg !bg-[#242424] hover:!bg-black !h-10 !px-4">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -146,14 +155,40 @@ export default function WorkspacePage() {
                 <line x1="12" y1="5" x2="12" y2="19" />
                 <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
-              Create form
+              Create a new form
             </Button>
           </div>
-        </div>
 
-        <div className="relative">
+          <div className="mb-7 flex flex-wrap items-center justify-between gap-4">
+            <div className="relative w-full max-w-[360px]">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-[#858582]" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <input
+                aria-label="Search forms"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search forms"
+                className="h-10 w-full rounded-md border border-[#dededb] bg-white pl-9 pr-3 text-[14px] outline-none focus:border-[#242424]"
+              />
+            </div>
+            <label className="text-[13px] text-[#696966]">
+              Sort by{" "}
+              <select
+                value={sort}
+                onChange={(e) =>
+                  setSort(e.target.value as "updated" | "title" | "responses")
+                }
+                className="ml-1 bg-transparent font-medium text-[#242424] outline-none"
+              >
+                <option value="updated">Last updated</option>
+                <option value="title">Name</option>
+                <option value="responses">Responses</option>
+              </select>
+            </label>
+          </div>
+
+        <div className="relative rounded-lg border border-[#e5e5e2] bg-white overflow-hidden">
           <FormsList
-            forms={forms}
+            forms={visibleForms}
             isLoading={isLoading}
             onRefresh={fetchForms}
           />
@@ -182,7 +217,9 @@ export default function WorkspacePage() {
             </div>
           )}
         </div>
+        </section>
       </main>
+      </div>
 
       <Modal
         open={createOpen}

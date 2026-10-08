@@ -246,19 +246,14 @@ export function FormsList({ forms, isLoading, onRefresh }: FormsListProps) {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="divide-y divide-[#ececea]">
         {[0, 1, 2, 3, 4, 5].map((i) => (
           <div
             key={i}
-            className="bg-white border border-gray-100 rounded-2xl p-6 h-[180px] flex flex-col gap-4"
+            className="bg-white px-6 h-[72px] flex items-center gap-6"
           >
-            <div className="flex justify-between items-start">
-              <div className="h-5 w-3/4 bg-gray-100 rounded animate-pulse" />
-              <div className="h-5 w-20 bg-gray-100 rounded-full animate-pulse" />
-            </div>
-            <div className="h-3 w-1/2 bg-gray-100 rounded animate-pulse" />
-            <div className="flex-1" />
-            <div className="h-4 w-28 bg-gray-100 rounded animate-pulse" />
+            <div className="h-4 w-1/3 bg-gray-100 rounded animate-pulse" />
+            <div className="h-4 w-16 bg-gray-100 rounded animate-pulse ml-auto" />
           </div>
         ))}
       </div>
@@ -287,50 +282,33 @@ export function FormsList({ forms, isLoading, onRefresh }: FormsListProps) {
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div>
+        <div className="hidden md:grid grid-cols-[minmax(240px,1fr)_110px_130px_150px_44px] items-center gap-4 px-6 h-11 border-b border-[#ececea] bg-[#fafaf9] text-[11px] font-semibold tracking-[.04em] text-[#73736f] uppercase">
+          <span>Name</span><span>Responses</span><span>Completion</span><span>Last updated</span><span />
+        </div>
+        <div className="divide-y divide-[#ececea]">
         {forms.map((form) => (
           <div
             key={form.id}
-            className="group relative bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-md transition-shadow duration-200 flex flex-col cursor-pointer min-h-[180px]"
+            className="group grid grid-cols-[minmax(0,1fr)_44px] md:grid-cols-[minmax(240px,1fr)_110px_130px_150px_44px] items-center gap-4 bg-white px-4 sm:px-6 min-h-[76px] hover:bg-[#fafaf9] transition-colors cursor-pointer"
             onClick={() => router.push(`/builder/${form.id}`)}
           >
-            <div className="flex justify-between items-start gap-3 mb-3">
-              <h3 className="text-[18px] font-semibold text-[rgb(var(--text-primary))] leading-snug line-clamp-2 flex-1">
-                {form.title || "Untitled form"}
-              </h3>
-              <span
-                className={cn(
-                  "flex-shrink-0 inline-flex items-center rounded-full px-3 py-0.5 text-xs font-semibold",
-                  form.status === "published"
-                    ? "bg-[rgb(var(--success))]/10 text-[rgb(var(--success))]"
-                    : "bg-gray-100 text-gray-600"
-                )}
-              >
-                {form.status === "published" ? "Published" : "Draft"}
-              </span>
+            <div className="min-w-0 flex items-center gap-3 py-3">
+              <div className={cn("h-10 w-10 rounded-md shrink-0", form.status === "published" ? "bg-[#eadbf9]" : "bg-[#e8e6e1]")} />
+              <div className="min-w-0">
+                <h3 className="truncate text-[14px] font-semibold text-[#292927]">{form.title || "Untitled form"}</h3>
+                <p className="mt-0.5 text-[12px] text-[#777772]">{form.status === "published" ? "Published" : "Draft"}</p>
+              </div>
             </div>
-            <p className="text-[13px] text-[rgb(var(--text-secondary))] mb-4">
-              Updated {formatTimeAgo(form.updated_at)}
-            </p>
-            <div className="mt-auto flex items-center justify-between pt-2">
-              <div className="flex items-center gap-2 text-sm text-[rgb(var(--text-secondary))]">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                </svg>
-                <span className="font-medium">
-                  {form.response_count}{" "}
-                  {form.response_count === 1 ? "response" : "responses"}
-                </span>
-              </div>
-              <div onClick={(e) => e.stopPropagation()}>
-                <DropdownMenu
-                  items={buildMenuItems(form)}
-                  align="right"
-                />
-              </div>
+            <span className="hidden md:block text-[13px] text-[#575754]">{form.response_count}</span>
+            <span className="hidden md:block text-[13px] text-[#777772]">—</span>
+            <span className="hidden md:block text-[13px] text-[#777772]">{formatTimeAgo(form.updated_at)}</span>
+            <div onClick={(e) => e.stopPropagation()}>
+              <DropdownMenu items={buildMenuItems(form)} align="right" />
             </div>
           </div>
         ))}
+        </div>
       </div>
 
       <Modal
