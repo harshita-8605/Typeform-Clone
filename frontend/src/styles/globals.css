@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand: 96 31 238;
+  --brand-light: 167 139 250;
+  --brand-dark: 67 18 172;
+  --text-primary: 26 26 37;
+  --text-secondary: 102 102 126;
+  --background: 255 255 255;
+  --surface: 248 247 251;
+  --error: 220 38 38;
+  --success: 22 163 74;
+}
+
+@layer base {
+  html {
+    @apply font-sans text-[rgb(var(--text-primary))] bg-[rgb(var(--background))];
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center h-11 px-6 rounded-full font-medium text-white bg-[rgb(var(--brand))] hover:bg-[rgb(var(--brand-dark))] transition-colors focus:outline-none focus:ring-2 focus:ring-[rgb(var(--brand))] focus:ring-offset-2 disabled:opacity-50;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center h-11 px-6 rounded-full font-medium text-[rgb(var(--text-primary))] bg-[rgb(var(--surface))] hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-[rgb(var(--brand))] focus:ring-offset-2 disabled:opacity-50;
+  }
+
+  .input-base {
+    @apply w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:border-[rgb(var(--brand))] focus:ring-2 focus:ring-[rgb(var(--brand))]/20 transition-all;
+  }
+}
