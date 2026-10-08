@@ -121,8 +121,8 @@ export default function FormViewPage({ params }: FormViewPageProps) {
   const [form, setForm] = useState<PublicForm | null>(null);
   const [currentIdx, setCurrentIdx] = useState<number>(0);
   const [direction, setDirection] = useState<1 | -1>(1);
-  const [answers, setAnswers] = useState<Record<number, Answer>>({});
-  const [questionErrors, setQuestionErrors] = useState<Record<number, string>>({});
+  const [answers, setAnswers] = useState<Record<number | string, Answer>>({});
+  const [questionErrors, setQuestionErrors] = useState<Record<number | string, string>>({});
   const [shakeKey, setShakeKey] = useState<number>(0);
   const [submittedResponseId, setSubmittedResponseId] = useState<number | undefined>();
 
@@ -146,7 +146,7 @@ export default function FormViewPage({ params }: FormViewPageProps) {
       try {
         const data = await api.get<PublicForm>(`/api/public/forms/${params.slug}`);
         if (cancelled) return;
-        if (!data || data.status !== "published") {
+        if (!data || !Array.isArray(data.questions)) {
           setStatus("notfound");
           return;
         }
@@ -301,7 +301,7 @@ export default function FormViewPage({ params }: FormViewPageProps) {
   }, []);
 
   const handleChange = useCallback(
-    (questionId: number, type: QuestionType, value: unknown) => {
+    (questionId: number | string, type: QuestionType, value: unknown) => {
       const answer = valueToAnswer(type, value);
       setAnswers((prev) => {
         const next = { ...prev };

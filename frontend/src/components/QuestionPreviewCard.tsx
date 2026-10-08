@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import type { Question } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-interface QuestionRendererProps {
+interface QuestionPreviewCardProps {
   question: Question;
   variant?: "full" | "compact";
   value?: unknown;
@@ -15,7 +15,7 @@ interface QuestionRendererProps {
   error?: string;
 }
 
-export function QuestionRenderer({
+export function QuestionPreviewCard({
   question,
   variant = "full",
   value,
@@ -24,7 +24,7 @@ export function QuestionRenderer({
   onBack,
   showBack,
   error,
-}: QuestionRendererProps) {
+}: QuestionPreviewCardProps) {
   const isFull = variant === "full";
 
   return (

@@ -2,34 +2,191 @@
 @tailwind components;
 @tailwind utilities;
 
+/* === TYPEFORM DESIGN TOKENS (mirrored from src/styles/typeform.ts) === */
 :root {
-  --brand: 96 31 238;
-  --brand-light: 167 139 250;
-  --brand-dark: 67 18 172;
-  --text-primary: 26 26 37;
-  --text-secondary: 102 102 126;
-  --background: 255 255 255;
-  --surface: 248 247 251;
-  --error: 220 38 38;
-  --success: 22 163 74;
+  /* Colors */
+  --tf-purple: 96 31 238;           /* #601FEE brand primary */
+  --tf-purple-light: 167 139 250;   /* #A78BFA */
+  --tf-purple-dark: 67 18 172;      /* #4312AC hover */
+  --tf-purple-subtle: 241 235 255;  /* #F1EBFF focus bg */
+  --tf-bg: 250 249 252;             /* #FAF9FC warm off-white surface */
+  --tf-canvas: 255 255 255;         /* #FFFFFF cards / modals */
+  --tf-text: 29 29 31;              /* #1D1D1F near-black */
+  --tf-muted: 119 119 119;          /* #777 secondary copy */
+  --tf-border: 236 236 241;         /* #ECECF1 hairline */
+  --tf-border-strong: 215 215 224;  /* #D7D7E0 */
+  --tf-error: 220 38 38;
+  --tf-success: 22 163 74;
+
+  /* Radii */
+  --tf-radius-card: 24px;
+  --tf-radius-input: 16px;
+  --tf-radius-pill: 9999px;
+  --tf-radius-menu: 12px;
+  --tf-radius-toast: 8px;
+
+  /* Shadows */
+  --tf-shadow-card: 0 1px 2px rgba(0,0,0,0.04);
+  --tf-shadow-hover: 0 6px 20px rgba(0,0,0,0.06);
+  --tf-shadow-modal: 0 20px 60px rgba(0,0,0,0.12);
+  --tf-shadow-focus: 0 0 0 3px rgb(96 31 238 / 0.12);
+  --tf-shadow-toast: 0 4px 16px rgba(0,0,0,0.06);
 }
 
+/* legacy alias — kept so existing className="bg-brand" continues working */
+:root {
+  --brand: var(--tf-purple);
+  --brand-light: var(--tf-purple-light);
+  --brand-dark: var(--tf-purple-dark);
+  --text-primary: var(--tf-text);
+  --text-secondary: var(--tf-muted);
+  --background: var(--tf-canvas);
+  --surface: var(--tf-bg);
+  --error: var(--tf-error);
+  --success: var(--tf-success);
+}
+
+/* === BASE === */
 @layer base {
   html {
-    @apply font-sans text-[rgb(var(--text-primary))] bg-[rgb(var(--background))];
+    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+    color: rgb(var(--tf-text));
+    background-color: rgb(var(--tf-canvas));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    font-size: 16px;
+    line-height: 1.55;
+  }
+  h1, h2, h3, h4 {
+    color: rgb(var(--tf-text));
+    letter-spacing: -0.01em;
+  }
+  *::selection {
+    background-color: rgb(var(--tf-purple) / 0.18);
+    color: rgb(var(--tf-text));
+  }
+  input, textarea, select {
+    font-family: inherit;
   }
 }
 
+/* === COMPONENTS === */
 @layer components {
-  .btn-primary {
-    @apply inline-flex items-center justify-center h-11 px-6 rounded-full font-medium text-white bg-[rgb(var(--brand))] hover:bg-[rgb(var(--brand-dark))] transition-colors focus:outline-none focus:ring-2 focus:ring-[rgb(var(--brand))] focus:ring-offset-2 disabled:opacity-50;
+  /* ---------- Buttons ---------- */
+  .tf-btn-primary {
+    @apply inline-flex items-center justify-center h-12 px-7 rounded-full font-medium text-white bg-[rgb(var(--tf-purple))] hover:bg-[rgb(var(--tf-purple-dark))] active:bg-[rgb(var(--tf-purple-dark))] transition-all duration-150 focus:outline-none focus:shadow-[var(--tf-shadow-focus)] disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .tf-btn-outline {
+    @apply inline-flex items-center justify-center h-12 px-6 rounded-full font-medium text-[rgb(var(--tf-text))] bg-white border border-[rgb(var(--tf-border-strong))] hover:border-[rgb(var(--tf-purple))] hover:text-[rgb(var(--tf-purple))] transition-all duration-150 focus:outline-none focus:shadow-[var(--tf-shadow-focus)] disabled:opacity-50;
+  }
+  .tf-btn-ghost {
+    @apply inline-flex items-center justify-center h-10 px-4 rounded-full font-medium text-[rgb(var(--tf-text))] hover:bg-[rgb(var(--tf-bg))] transition-colors focus:outline-none disabled:opacity-50;
+  }
+  .tf-btn-icon {
+    @apply inline-flex items-center justify-center h-9 w-9 rounded-full text-[rgb(var(--tf-muted))] hover:bg-[rgb(var(--tf-bg))] hover:text-[rgb(var(--tf-text))] transition-colors focus:outline-none;
+  }
+  /* legacy alias */
+  .btn-primary { @apply tf-btn-primary h-11 px-6; }
+  .btn-secondary { @apply tf-btn-outline h-11 px-6; }
+
+  /* ---------- Inputs ---------- */
+  .tf-input-box {
+    @apply w-full rounded-[16px] border border-[rgb(var(--tf-border-strong))] bg-white px-4 py-3 text-[16px] text-[rgb(var(--tf-text))] placeholder:text-[rgb(var(--tf-muted))] transition-all focus:outline-none focus:border-[rgb(var(--tf-purple))] focus:shadow-[var(--tf-shadow-focus)];
+  }
+  .tf-input-underline {
+    @apply w-full bg-transparent border-0 border-b-2 border-[rgb(var(--tf-border-strong))] rounded-none px-0 py-2 text-[20px] md:text-[24px] text-[rgb(var(--tf-text))] placeholder:text-[rgb(var(--tf-muted))]/70 transition-colors focus:outline-none focus:border-b-[rgb(var(--tf-purple))];
+  }
+  /* legacy alias */
+  .input-base { @apply tf-input-box; }
+
+  /* ---------- Cards ---------- */
+  .tf-card {
+    @apply bg-white rounded-[24px] shadow-[var(--tf-shadow-card)] transition-all duration-200;
+  }
+  .tf-card-hover {
+    @apply tf-card hover:shadow-[var(--tf-shadow-hover)] hover:-translate-y-0.5;
   }
 
-  .btn-secondary {
-    @apply inline-flex items-center justify-center h-11 px-6 rounded-full font-medium text-[rgb(var(--text-primary))] bg-[rgb(var(--surface))] hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-[rgb(var(--brand))] focus:ring-offset-2 disabled:opacity-50;
+  /* ---------- Pills / Badges ---------- */
+  .tf-badge-outline {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-medium border border-[rgb(var(--tf-purple))] text-[rgb(var(--tf-purple))];
+  }
+  .tf-badge-muted {
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-medium bg-[rgb(var(--tf-bg))] text-[rgb(var(--tf-muted))];
   }
 
-  .input-base {
-    @apply w-full rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:border-[rgb(var(--brand))] focus:ring-2 focus:ring-[rgb(var(--brand))]/20 transition-all;
+  /* ---------- Focus Line Left (builder active question) ---------- */
+  .tf-focus-line {
+    position: relative;
+  }
+  .tf-focus-line::before {
+    content: "";
+    position: absolute;
+    left: -24px;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    border-radius: 4px;
+    background-color: rgb(var(--tf-purple));
+  }
+
+  /* ---------- App shell utilities ---------- */
+  .tf-app-shell {
+    @apply h-screen w-screen flex flex-col bg-[rgb(var(--tf-bg))] text-[rgb(var(--tf-text))];
+  }
+  .tf-top-nav {
+    @apply h-16 shrink-0 border-b border-[rgb(var(--tf-border))] bg-[rgb(var(--tf-canvas))] backdrop-blur;
+  }
+  .tf-side-nav {
+    @apply w-60 shrink-0 border-r border-[rgb(var(--tf-border))] bg-[rgb(var(--tf-canvas))];
+  }
+
+  /* ---------- Modal backdrop ---------- */
+  .tf-modal-backdrop {
+    @apply fixed inset-0 bg-black/40 backdrop-blur-[2px] z-[60] flex items-center justify-center animate-fade-in;
+  }
+  .tf-modal-panel {
+    @apply relative bg-white rounded-[24px] shadow-[var(--tf-shadow-modal)] w-full max-w-[560px] overflow-hidden;
+  }
+
+  /* ---------- Toast ---------- */
+  .tf-toast {
+    @apply relative flex items-start gap-3 bg-[#FAF9FC] text-[rgb(var(--tf-text))] shadow-[var(--tf-shadow-toast)] rounded-[8px] px-4 py-3 pr-10 overflow-hidden max-w-sm;
+  }
+  .tf-toast::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background-color: rgb(var(--tf-purple));
+  }
+  .tf-toast-error::before { background-color: rgb(var(--tf-error)); }
+  .tf-toast-success::before { background-color: rgb(var(--tf-success)); }
+
+  /* ---------- Tabs (underline style) ---------- */
+  .tf-tab {
+    @apply inline-flex items-center h-12 px-4 text-[15px] font-medium text-[rgb(var(--tf-muted))] border-b-3 border-transparent transition-colors hover:text-[rgb(var(--tf-text))] cursor-pointer;
+  }
+  .tf-tab-active {
+    @apply text-[rgb(var(--tf-text))] border-[rgb(var(--tf-purple))];
+  }
+
+  /* ---------- Respondent progress ---------- */
+  .tf-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    z-index: 50;
+    background-color: rgb(var(--tf-border));
+  }
+  .tf-progress-bar > span {
+    display: block;
+    height: 100%;
+    background-color: rgb(var(--tf-purple));
   }
 }

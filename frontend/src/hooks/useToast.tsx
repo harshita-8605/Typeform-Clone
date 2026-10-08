@@ -32,10 +32,33 @@ function generateToastId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-const variantStyles: Record<ToastVariant, string> = {
-  success: "bg-[rgb(var(--success))] text-white",
-  error: "bg-[rgb(var(--error))] text-white",
-  info: "bg-[rgb(var(--brand))] text-white",
+const variantBarClass: Record<ToastVariant, string> = {
+  success: "tf-toast-success",
+  error: "tf-toast-error",
+  info: "",
+};
+
+const variantIcon: Record<ToastVariant, React.ReactNode> = {
+  info: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-[2px] text-[rgb(var(--tf-purple))] flex-shrink-0">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="16" x2="12" y2="12" />
+      <line x1="12" y1="8" x2="12.01" y2="8" />
+    </svg>
+  ),
+  success: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mt-[2px] text-[rgb(var(--tf-success))] flex-shrink-0">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+      <polyline points="22 4 12 14.01 9 11.01" />
+    </svg>
+  ),
+  error: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mt-[2px] text-[rgb(var(--tf-error))] flex-shrink-0">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="15" y1="9" x2="9" y2="15" />
+      <line x1="9" y1="9" x2="15" y2="15" />
+    </svg>
+  ),
 };
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
@@ -105,7 +128,7 @@ function Toaster() {
     <div
       aria-live="polite"
       aria-atomic="true"
-      className="fixed top-4 right-4 z-50 flex flex-col gap-2 w-full max-w-sm pointer-events-none"
+      className="fixed top-4 right-4 z-[80] flex flex-col gap-2 w-full max-w-sm pointer-events-none"
     >
       {context.toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} onDismiss={() => context.removeToast(toast.id)} />
@@ -125,23 +148,26 @@ function ToastItem({
     <div
       role="status"
       className={cn(
-        "pointer-events-auto px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-start gap-3 min-h-0",
-        variantStyles[toast.variant],
+        "pointer-events-auto tf-toast",
+        variantBarClass[toast.variant],
         toast.removing ? "animate-toast-slide-out" : "animate-toast-slide-in"
       )}
       onClick={onDismiss}
     >
-      <span className="flex-1 break-words">{toast.text}</span>
+      {variantIcon[toast.variant]}
+      <span className="flex-1 break-words text-[13px] font-medium leading-snug pt-[2px]">
+        {toast.text}
+      </span>
       <button
         type="button"
         onClick={onDismiss}
-        className="opacity-70 hover:opacity-100 transition-opacity flex-shrink-0"
+        className="opacity-60 hover:opacity-100 transition-opacity flex-shrink-0 ml-2 text-[rgb(var(--tf-muted))]"
         aria-label="Dismiss"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
+          width="14"
+          height="14"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"

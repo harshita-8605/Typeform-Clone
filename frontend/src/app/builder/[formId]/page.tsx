@@ -23,7 +23,7 @@ import { api } from "@/lib/api";
 import type { Form, Question, QuestionType, QuestionOption } from "@/lib/types";
 import { useToast } from "@/hooks/useToast";
 import { cn, toLocalForm, toLocalQuestion } from "@/lib/utils";
-import { QuestionRenderer } from "@/components/QuestionRenderer";
+import { QuestionPreviewCard } from "@/components/QuestionPreviewCard";
 
 interface BuilderPageProps {
   params: {
@@ -68,7 +68,7 @@ function generateTempId(): string {
 
 function createNewQuestion(type: QuestionType, orderIndex: number): Question {
   const base: Question = {
-    id: 0,
+    id: generateTempId(),
     type,
     title: "",
     description: null,
@@ -119,7 +119,7 @@ function questionToBackend(q: Question, index: number) {
   }
 
   return {
-    id: q.id && q.id > 0 ? q.id : undefined,
+    id: typeof q.id === "number" && q.id > 0 ? q.id : undefined,
     type: q.type,
     title: q.title,
     description: q.description ?? null,
@@ -645,7 +645,7 @@ export default function BuilderPage({ params }: BuilderPageProps) {
               </div>
               <div className="flex-1 flex flex-col py-3">
                 {previewQuestion ? (
-                  <QuestionRenderer
+                  <QuestionPreviewCard
                     key={`${previewQuestion.id}-${previewIndex}`}
                     question={previewQuestion}
                     variant="full"

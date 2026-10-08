@@ -340,7 +340,7 @@ export function FormsList({ forms, isLoading, onRefresh }: FormsListProps) {
         footer={
           <>
             <Button
-              variant="secondary"
+              variant="outline"
               size="md"
               onClick={() => setRenameFormId(null)}
               disabled={renameLoading}
@@ -382,7 +382,7 @@ export function FormsList({ forms, isLoading, onRefresh }: FormsListProps) {
         footer={
           <>
             <Button
-              variant="secondary"
+              variant="outline"
               size="md"
               onClick={() => setDeleteFormId(null)}
               disabled={deleteLoading}

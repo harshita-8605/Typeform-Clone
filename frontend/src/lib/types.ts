@@ -16,7 +16,7 @@ export interface QuestionOption {
 }
 
 export interface Question {
-  id: number;
+  id: number | string;
   formId?: number;
   type: QuestionType;
   title: string;

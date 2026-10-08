@@ -29,7 +29,7 @@ interface FormMeta {
 }
 
 interface QuestionStat {
-  questionId: number;
+  questionId: number | string;
   type: QuestionType;
   answeredCount: number;
   [key: string]: unknown;
@@ -106,7 +106,7 @@ function formatTimeAgo(iso: string): string {
   return formatDate(iso);
 }
 
-function resolveQuestionTitle(qMap: Record<number, Question>, qid: number): string {
+function resolveQuestionTitle(qMap: Record<number | string, Question>, qid: number | string): string {
   return qMap[qid]?.title ?? `Question ${qid}`;
 }
 
@@ -479,7 +479,7 @@ interface SummaryTabProps {
 }
 function SummaryTab({ form, summary }: SummaryTabProps) {
   const qMap = useMemo(() => {
-    const m: Record<number, Question> = {};
+    const m: Record<number | string, Question> = {};
     for (const q of form?.questions ?? []) {
       m[q.id] = q;
     }

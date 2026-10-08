@@ -10,6 +10,7 @@ export interface DropdownMenuItem {
   onClick?: () => void;
   danger?: boolean;
   disabled?: boolean;
+  shortcut?: string;
 }
 
 export interface DropdownMenuProps {
@@ -57,7 +58,7 @@ export function DropdownMenu({
     <button
       type="button"
       onClick={() => setOpen((o) => !o)}
-      className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[rgb(var(--text-secondary))] hover:bg-[rgb(var(--surface))] hover:text-[rgb(var(--text-primary))] transition-colors focus:outline-none focus:ring-2 focus:ring-[rgb(var(--brand))]/20"
+      className="tf-btn-icon"
       aria-haspopup="true"
       aria-expanded={open}
     >
@@ -82,7 +83,7 @@ export function DropdownMenu({
         <div
           role="menu"
           className={cn(
-            "absolute z-50 mt-1 min-w-[200px] rounded-2xl border border-gray-100 bg-white py-2 shadow-xl animate-fade-in",
+            "absolute z-50 mt-1.5 min-w-[220px] rounded-menu bg-white py-1 shadow-card animate-fade-in",
             align === "right" ? "right-0" : "left-0"
           )}
         >
@@ -97,20 +98,25 @@ export function DropdownMenu({
                 item.onClick?.();
               }}
               className={cn(
-                "flex w-full items-center gap-3 px-4 py-2.5 text-sm text-left transition-colors focus:outline-none",
+                "flex w-full items-center gap-3 px-3 py-2.5 text-[14px] text-left transition-colors focus:outline-none",
                 item.disabled
                   ? "text-gray-400 cursor-not-allowed"
                   : item.danger
-                  ? "text-[rgb(var(--error))] hover:bg-red-50"
-                  : "text-[rgb(var(--text-primary))] hover:bg-[rgb(var(--surface))]"
+                  ? "text-[rgb(var(--tf-error))] hover:bg-red-50"
+                  : "text-[rgb(var(--tf-text))] hover:bg-[rgb(var(--tf-bg))]"
               )}
             >
               {item.icon && (
-                <span className="flex-shrink-0 w-4 h-4 flex items-center justify-center">
+                <span className="flex-shrink-0 w-4 h-4 flex items-center justify-center text-[rgb(var(--tf-muted))]">
                   {item.icon}
                 </span>
               )}
-              <span className="font-medium">{item.label}</span>
+              <span className="flex-1 font-medium">{item.label}</span>
+              {item.shortcut && (
+                <span className="text-[12px] text-[rgb(var(--tf-muted))] ml-4">
+                  {item.shortcut}
+                </span>
+              )}
             </button>
           ))}
         </div>

@@ -10,6 +10,7 @@ export interface ModalProps {
   children?: React.ReactNode;
   footer?: React.ReactNode;
   widthClass?: string;
+  showClose?: boolean;
 }
 
 export function Modal({
@@ -19,6 +20,7 @@ export function Modal({
   children,
   footer,
   widthClass = "max-w-lg",
+  showClose = true,
 }: ModalProps) {
   useEffect(() => {
     if (!open) return;
@@ -40,33 +42,58 @@ export function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in"
+      className="tf-modal-backdrop"
       aria-modal="true"
       role="dialog"
     >
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0"
         onClick={onClose}
         aria-hidden="true"
       />
       <div
         className={cn(
-          "relative z-10 w-full rounded-3xl bg-white shadow-2xl overflow-hidden flex flex-col max-h-[90vh]",
+          "tf-modal-panel flex flex-col max-h-[90vh] animate-lift-in",
           widthClass
         )}
       >
-        {title !== undefined && (
-          <div className="px-6 pt-6 pb-4">
-            <h2 className="text-xl font-semibold text-[rgb(var(--text-primary))]">
-              {title}
-            </h2>
+        {(showClose || title !== undefined) && (
+          <div className="relative px-6 pt-6 pb-2 flex items-start justify-between">
+            {title !== undefined && (
+              <h2 className="text-[20px] font-semibold text-[rgb(var(--tf-text))] pr-8">
+                {title}
+              </h2>
+            )}
+            {showClose && (
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close"
+                className="tf-btn-icon absolute top-4 right-4"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            )}
           </div>
         )}
         {children !== undefined && (
           <div className="px-6 py-4 overflow-y-auto flex-1">{children}</div>
         )}
         {footer !== undefined && (
-          <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3 bg-gray-50/50">
+          <div className="px-6 py-4 border-t border-[rgb(var(--tf-border))] flex items-center justify-end gap-3 bg-[rgb(var(--tf-bg))]/50">
             {footer}
           </div>
         )}

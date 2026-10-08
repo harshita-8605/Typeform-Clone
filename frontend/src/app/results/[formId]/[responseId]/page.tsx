@@ -173,7 +173,7 @@ export default function ResponseDetailPage({ params }: DetailPageProps) {
 
         <div className="flex items-center gap-2">
           <Button
-            variant="secondary"
+            variant="outline"
             size="sm"
             disabled={prevId === null}
             onClick={() => router.push(`/results/${formIdNum}/${prevId}`)}
@@ -184,7 +184,7 @@ export default function ResponseDetailPage({ params }: DetailPageProps) {
             Previous
           </Button>
           <Button
-            variant="secondary"
+            variant="outline"
             size="sm"
             disabled={nextId === null}
             onClick={() => router.push(`/results/${formIdNum}/${nextId}`)}
@@ -262,8 +262,8 @@ function InfoBlock({ label, value }: { label: string; value: string }) {
   );
 }
 
-function findAnswerFor(response: ResponseData | null, qid: number): AnswerOut | undefined {
-  return response?.answers.find((a) => a.questionId === qid);
+function findAnswerFor(response: ResponseData | null, qid: number | string): AnswerOut | undefined {
+  return response?.answers.find((a) => String(a.questionId) === String(qid));
 }
 
 function AnswerBlock({

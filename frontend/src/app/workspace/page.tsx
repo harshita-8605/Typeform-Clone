@@ -191,7 +191,7 @@ export default function WorkspacePage() {
         footer={
           <>
             <Button
-              variant="secondary"
+              variant="outline"
               size="md"
               onClick={() => setCreateOpen(false)}
               disabled={createLoading}
