@@ -35,6 +35,8 @@ export default function WorkspacePage() {
   const [workspaceOpen, setWorkspaceOpen] = useState(false);
   const [workspaceName, setWorkspaceName] = useState("");
   const [workspaceLoading, setWorkspaceLoading] = useState(false);
+  const [renameWorkspaceOpen, setRenameWorkspaceOpen] = useState(false);
+  const [workspaceToRename, setWorkspaceToRename] = useState("");
   const workspaceInputRef = React.useRef<HTMLInputElement>(null);
 
   const fetchForms = useCallback(async () => {
@@ -109,11 +111,18 @@ export default function WorkspacePage() {
     setWorkspaceOpen(true);
   };
 
+  const openWorkspaceRename = (name: string) => {
+    setWorkspaceToRename(name);
+    setWorkspaceName(name);
+    setWorkspaceLoading(false);
+    setRenameWorkspaceOpen(true);
+  };
+
   useEffect(() => {
-    if (workspaceOpen && workspaceInputRef.current) {
+    if ((workspaceOpen || renameWorkspaceOpen) && workspaceInputRef.current) {
       window.setTimeout(() => workspaceInputRef.current?.focus(), 50);
     }
-  }, [workspaceOpen]);
+  }, [renameWorkspaceOpen, workspaceOpen]);
 
   const submitWorkspaceCreate = () => {
     const name = workspaceName.trim();
@@ -130,6 +139,41 @@ export default function WorkspacePage() {
     setWorkspaceLoading(false);
     setWorkspaceOpen(false);
     showToast("Workspace created", "success");
+  };
+
+  const submitWorkspaceRename = () => {
+    const name = workspaceName.trim();
+    if (!name) return;
+    if (
+      workspaceNames.some(
+        (existing) =>
+          existing !== workspaceToRename &&
+          existing.toLowerCase() === name.toLowerCase()
+      )
+    ) {
+      showToast("A workspace with that name already exists", "error");
+      return;
+    }
+
+    setWorkspaceLoading(true);
+    const next = workspaceNames.map((workspace) =>
+      workspace === workspaceToRename ? name : workspace
+    );
+    setWorkspaceNames(next);
+    if (selectedWorkspace === workspaceToRename) {
+      setSelectedWorkspace(name);
+    }
+    window.localStorage.setItem("typeform-workspaces", JSON.stringify(next));
+    setWorkspaceLoading(false);
+    setRenameWorkspaceOpen(false);
+    showToast("Workspace renamed", "success");
+  };
+
+  const onWorkspaceKeyDown = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+    submit: () => void
+  ) => {
+    if (event.key === "Enter") submit();
   };
 
   useEffect(() => {
@@ -228,22 +272,38 @@ export default function WorkspacePage() {
         <nav className="mt-7 space-y-1 text-[14px]">
           <p className="px-3 pb-2 text-[11px] tracking-[.08em] font-semibold text-[#777]">WORKSPACES</p>
           {workspaceNames.map((workspace) => (
-            <button
+            <div
               key={workspace}
-              type="button"
-              onClick={() => setSelectedWorkspace(workspace)}
-              className={`w-full flex items-center justify-between gap-2 rounded-md px-3 py-2 text-left font-medium ${
+              className={`group w-full flex items-center justify-between gap-2 rounded-md ${
                 selectedWorkspace === workspace ? "bg-[#efefed] text-[#403343]" : "text-[#5f5f5c] hover:bg-[#f4f4f2]"
               }`}
             >
-              <span className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedWorkspace(workspace)}
+                className="min-w-0 flex-1 flex items-center gap-2 px-3 py-2 text-left font-medium"
+              >
                 <span className="h-5 w-5 rounded-full bg-[#dcdad6] flex items-center justify-center text-[11px]">⌂</span>
-                {workspace}
-              </span>
-              <span className="text-xs text-[#777]">
-                {workspace === "My workspace" ? forms.length : 0}
-              </span>
-            </button>
+                <span className="truncate">{workspace}</span>
+              </button>
+              <div className="flex items-center gap-1 pr-2">
+                <span className="text-xs text-[#777]">
+                  {workspace === "My workspace" ? forms.length : 0}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => openWorkspaceRename(workspace)}
+                  aria-label={`Rename ${workspace}`}
+                  title={`Rename ${workspace}`}
+                  className="rounded p-1 text-[#777] opacity-0 transition-opacity hover:bg-white hover:text-[#403343] group-hover:opacity-100 focus:opacity-100"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
           ))}
           <button type="button" onClick={openWorkspaceCreate} className="w-full flex items-center gap-2 rounded-md px-3 py-2 text-left text-[#5f5f5c] hover:bg-[#f4f4f2]">
             <span className="text-[17px]">+</span> Create workspace
@@ -413,10 +473,48 @@ export default function WorkspacePage() {
           type="text"
           value={workspaceName}
           onChange={(e) => setWorkspaceName(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") submitWorkspaceCreate();
-          }}
+          onKeyDown={(e) => onWorkspaceKeyDown(e, submitWorkspaceCreate)}
           placeholder="New workspace"
+          className="input-base"
+        />
+      </Modal>
+
+      <Modal
+        open={renameWorkspaceOpen}
+        onClose={() => !workspaceLoading && setRenameWorkspaceOpen(false)}
+        title="Rename workspace"
+        footer={
+          <>
+            <Button
+              variant="outline"
+              size="md"
+              onClick={() => setRenameWorkspaceOpen(false)}
+              disabled={workspaceLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="md"
+              onClick={submitWorkspaceRename}
+              isLoading={workspaceLoading}
+              disabled={!workspaceName.trim()}
+            >
+              Rename workspace
+            </Button>
+          </>
+        }
+      >
+        <label className="block text-sm font-medium text-[rgb(var(--text-primary))] mb-2">
+          Workspace name
+        </label>
+        <input
+          ref={workspaceInputRef}
+          type="text"
+          value={workspaceName}
+          onChange={(e) => setWorkspaceName(e.target.value)}
+          onKeyDown={(e) => onWorkspaceKeyDown(e, submitWorkspaceRename)}
+          placeholder="Workspace name"
           className="input-base"
         />
       </Modal>
