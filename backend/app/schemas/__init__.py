@@ -3,6 +3,7 @@ from app.schemas.question import (
     Option,
     QuestionBase,
     QuestionCreate,
+    QuestionUpsert,
     QuestionUpdate,
     Question,
 )
@@ -27,6 +28,7 @@ __all__ = [
     "Option",
     "QuestionBase",
     "QuestionCreate",
+    "QuestionUpsert",
     "QuestionUpdate",
     "Question",
     "FormStatus",
