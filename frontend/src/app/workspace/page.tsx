@@ -82,7 +82,18 @@ export default function WorkspacePage() {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.every((name) => typeof name === "string")) {
-          setWorkspaceNames(Array.from(new Set(["My workspace", ...parsed])));
+          const uniqueNames = Array.from(new Set(parsed.map((name) => name.trim()).filter(Boolean)));
+          const savedAssignments = window.localStorage.getItem("typeform-workspace-form-assignments");
+          const assignments = savedAssignments ? JSON.parse(savedAssignments) : {};
+          const hasAssignments = assignments && Object.keys(assignments).length > 0;
+          const names =
+            uniqueNames.length > 1 &&
+            uniqueNames[0] === "My workspace" &&
+            !hasAssignments
+              ? uniqueNames.slice(1)
+              : uniqueNames;
+          setWorkspaceNames(names.length > 0 ? names : ["My workspace"]);
+          setSelectedWorkspace(names.length > 0 ? names[0] : "My workspace");
         }
       }
       const savedAssignments = window.localStorage.getItem("typeform-workspace-form-assignments");
