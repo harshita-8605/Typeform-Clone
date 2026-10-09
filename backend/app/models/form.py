@@ -10,6 +10,7 @@ class Form(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     title = Column(String, nullable=False, default="Untitled form")
+    owner_email = Column(String, nullable=True, index=True)
     slug = Column(String, unique=True, nullable=True)
     status = Column(String, default="draft")
     theme_json = Column(JSON, nullable=True)

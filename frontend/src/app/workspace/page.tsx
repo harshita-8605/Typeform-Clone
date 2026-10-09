@@ -2,10 +2,12 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { getSession } from "next-auth/react";
 import { useToast } from "@/hooks/useToast";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { SignOutButton } from "@/components/auth/SignOutButton";
 import {
   FormsList,
   type FormListItem,
@@ -19,6 +21,10 @@ export default function WorkspacePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<"updated" | "title" | "responses">("updated");
+  const [creatorName, setCreatorName] = useState("Creator");
+  const [creatorInitials, setCreatorInitials] = useState("CR");
+  const [creatorEmail, setCreatorEmail] = useState("");
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const [createOpen, setCreateOpen] = useState(false);
   const [createTitle, setCreateTitle] = useState("");
@@ -37,11 +43,26 @@ export default function WorkspacePage() {
     } finally {
       setIsLoading(false);
     }
-  }, [showToast]);
+  }, [creatorEmail, showToast]);
 
   useEffect(() => {
-    fetchForms();
-  }, [fetchForms]);
+    void getSession().then((session) => {
+      const name = session?.user?.name?.trim() || session?.user?.email || "Creator";
+      const initials = name
+        .split(/\s+/)
+        .map((part) => part[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase();
+      setCreatorName(name);
+      setCreatorInitials(initials || "CR");
+      setCreatorEmail(session?.user?.email || "");
+    });
+  }, []);
+
+  useEffect(() => {
+    if (creatorEmail) void fetchForms();
+  }, [creatorEmail, fetchForms]);
 
   const visibleForms = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -89,6 +110,10 @@ export default function WorkspacePage() {
     }
   };
 
+  const openComingSoon = (feature: string) => {
+    router.push(`/coming-soon/${encodeURIComponent(feature)}`);
+  };
+
   const onCreateFormKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       submitCreate();
@@ -101,12 +126,48 @@ export default function WorkspacePage() {
 
   return (
     <div className="min-h-screen bg-[#f8f8f8] text-[#463d49] flex flex-col">
-      <header className="h-[74px] shrink-0 bg-white border-b border-[#eeeeef] flex items-center justify-between px-7">
-        <div className="flex items-center gap-3"><span className="h-10 w-2 rounded-full bg-[#29212b]" /><span className="h-10 w-10 rounded-[10px] bg-[#a669cb] text-white flex items-center justify-center text-[20px]">H</span><span className="font-medium text-[17px]">harshitanarula08</span><span className="text-[#766f77]">⌄</span></div>
-        <div className="flex items-center gap-8 text-[16px] text-[#6b636c]"><button type="button">⌘ Integrations</button><button type="button">♜ Brand kit</button><button type="button" className="rounded-xl bg-[#16806e] px-5 py-3 text-white font-medium">View plans</button><button type="button">?</button><span className="h-10 w-10 rounded-full bg-[#e8cfff] flex items-center justify-center text-[#593466]">HN</span></div>
+      <header className="relative z-20 h-[74px] shrink-0 bg-white border-b border-[#eeeeef] flex items-center justify-between px-7">
+        <div className="flex items-center gap-3"><span className="h-10 w-2 rounded-full bg-[#29212b]" /><span className="h-10 w-10 rounded-[10px] bg-[#a669cb] text-white flex items-center justify-center text-[16px]">{creatorInitials}</span><span className="max-w-[190px] truncate font-medium text-[17px]">{creatorName}</span></div>
+        <div className="flex items-center gap-5 text-[16px] text-[#6b636c]">
+          <button type="button" onClick={() => openComingSoon("Integrations")}>⌘ Integrations</button>
+          <button type="button" onClick={() => openComingSoon("Brand kit")}>♜ Brand kit</button>
+          <button type="button" onClick={() => openComingSoon("Plans")} className="rounded-xl bg-[#16806e] px-5 py-3 text-white font-medium">View plans</button>
+          <button type="button" onClick={() => openComingSoon("Help")} aria-label="Help">?</button>
+          <button type="button" onClick={() => setProfileOpen((open) => !open)} aria-label="Open account menu" className="h-10 w-10 rounded-full bg-[#e8cfff] flex items-center justify-center text-[#593466]">{creatorInitials}</button>
+          {profileOpen && (
+            <div className="absolute right-5 top-[66px] w-[280px] rounded-b-2xl border border-[#e7e3e8] bg-white px-5 py-5 shadow-xl text-[#665d69]">
+              <div className="border-b border-[#eee9ed] pb-4">
+                <p className="text-[13px] uppercase tracking-[.12em] text-[#403343]">Account</p>
+                <button type="button" onClick={() => openComingSoon("Account settings")} className="mt-3 text-left text-[16px] hover:text-[#332735]">Account settings</button>
+              </div>
+              <div className="border-b border-[#eee9ed] py-4">
+                <p className="text-[13px] uppercase tracking-[.12em] text-[#403343]">Resources</p>
+                {["Support", "Help center", "Community", "Apps & integrations", "What's New"].map((item) => (
+                  <button key={item} type="button" onClick={() => openComingSoon(item)} className="mt-3 block text-left text-[16px] hover:text-[#332735]">{item}</button>
+                ))}
+              </div>
+              <button type="button" onClick={() => openComingSoon("Refer friends, get rewards")} className="border-b border-[#eee9ed] py-4 text-left text-[16px] w-full">Refer friends, get rewards</button>
+              <button type="button" onClick={() => router.push("/")} className="block border-b border-[#eee9ed] py-4 text-left text-[16px] w-full">Homepage</button>
+              <div className="pt-4 text-[#a4482c]"><SignOutButton /></div>
+            </div>
+          )}
+        </div>
       </header>
       <nav className="h-[78px] mx-5 mt-0 rounded-t-[18px] bg-[#f1f1f3] border-b border-[#e8e7ea] flex items-center gap-9 px-8 text-[16px] font-medium text-[#6a626b]">
-        <span className="h-full flex items-center border-b-[3px] border-[#4b3b50] text-[#45394a]">▣ &nbsp; Forms</span><span>♧ &nbsp; Contacts</span><span>♧ &nbsp; Automations</span><span>⌁ &nbsp; Insights <i className="ml-1 rounded-full border border-[#82ccc2] bg-white px-1.5 py-0.5 not-italic text-[12px] text-[#287a73]">◇</i></span><span>▧ &nbsp; Pages <i className="ml-1 rounded-lg border border-[#9dcce9] bg-[#edf8ff] px-2 py-0.5 not-italic text-[12px] text-[#397498]">Beta</i></span><span className="border-l border-[#d9d7da] pl-8">◉ &nbsp; Research Flow</span>
+        <button type="button" onClick={() => router.push("/workspace")} className="h-full flex items-center border-b-[3px] border-[#4b3b50] text-[#45394a]">▣ &nbsp; Forms</button>
+        {[
+          ["Contacts", "♧"],
+          ["Automations", "♧"],
+          ["Insights", "⌁"],
+          ["Pages", "▧"],
+          ["Research Flow", "◉"],
+        ].map(([feature, icon], index) => (
+          <button key={feature} type="button" onClick={() => openComingSoon(feature)} className={index === 4 ? "border-l border-[#d9d7da] pl-8" : ""}>
+            {icon} &nbsp; {feature}
+            {feature === "Insights" && <i className="ml-1 rounded-full border border-[#82ccc2] bg-white px-1.5 py-0.5 not-italic text-[12px] text-[#287a73]">◇</i>}
+            {feature === "Pages" && <i className="ml-1 rounded-lg border border-[#9dcce9] bg-[#edf8ff] px-2 py-0.5 not-italic text-[12px] text-[#397498]">Beta</i>}
+          </button>
+        ))}
       </nav>
       <div className="flex flex-1 min-h-0">
       <aside className="hidden lg:flex w-[362px] min-h-full shrink-0 border-r border-[#e8e8e6] bg-[#fbfbfc] px-5 py-6 flex-col">
@@ -128,7 +189,7 @@ export default function WorkspacePage() {
         </nav>
         <div className="mt-auto border-t border-[#ececea] pt-4">
           <button type="button" className="w-full flex items-center gap-3 rounded-md px-3 py-2 text-left text-[14px] hover:bg-[#f4f4f2]">
-            <span className="h-7 w-7 rounded-full bg-[#e7d4c6] flex items-center justify-center text-[12px] font-semibold">H</span> Harshita
+            <span className="h-7 w-7 rounded-full bg-[#e7d4c6] flex items-center justify-center text-[12px] font-semibold">{creatorInitials}</span> {creatorName}
           </button>
         </div>
       </aside>

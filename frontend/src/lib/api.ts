@@ -26,10 +26,18 @@ async function request<T>(
     "Content-Type": "application/json",
   };
 
-  const headers = {
+  const headers: Record<string, string> = {
     ...defaultHeaders,
-    ...(options.headers ?? {}),
+    ...(options.headers instanceof Headers
+      ? Object.fromEntries(options.headers.entries())
+      : Array.isArray(options.headers)
+        ? Object.fromEntries(options.headers)
+        : options.headers ?? {}),
   };
+  const session = await getSession();
+  if (session?.user?.email) {
+    headers["X-Creator-Email"] = session.user.email;
+  }
 
   const response = await fetch(url, {
     ...options,
@@ -109,3 +117,4 @@ export const api = {
     return request<T>(path, { ...opts, method: "DELETE" });
   },
 };
+import { getSession } from "next-auth/react";

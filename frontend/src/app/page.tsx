@@ -1,52 +1,259 @@
-import Link from "next/link";
+ "use client";
 
-const productCards = [
-  { eyebrow: "ASK", title: "Intelligent Forms", text: "Build forms that adapt to every respondent and then analyze your data for rich insights.", active: true },
-  { eyebrow: "ACT", title: "Growth Flow", text: "Convert and keep customers with automated AI segmentation and follow-ups." },
-  { eyebrow: "LEARN", title: "Research Flow", text: "Make confident business decisions fast with AI-moderated research." },
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+
+const features = [
+  {
+    icon: "↗",
+    title: "High response rate",
+    text: "Build forms people actually want to fill out with a beautiful design and conversational flow.",
+  },
+  {
+    icon: "◈",
+    title: "Deeper insights",
+    text: "Get rich answers with video and audio responses, plus extra context from AI-generated follow-up questions.",
+  },
+  {
+    icon: "▥",
+    title: "Advanced analytics",
+    text: "Turn both qualitative and quantitative data into useful insights for your team.",
+  },
 ];
+
+const logos = ["Calendly", "Miro", "L’OCCITANE", "WeTransfer", "slack"];
+
+const menus = {
+  Platform: [
+    { label: "Form builder", description: "Create and edit conversational forms", href: "#form-builder" },
+    { label: "Public forms", description: "Share a one-question-at-a-time experience", href: "#intelligent-forms" },
+    { label: "Responses & analytics", description: "Review submissions and question summaries", href: "/login?callbackUrl=%2Fworkspace" },
+  ],
+  Solutions: [
+    { label: "Intelligent Forms", description: "Build forms from your ideas", href: "#intelligent-forms" },
+    { label: "Growth Flow", description: "Turn responses into follow-up actions", href: "#growth-flow" },
+    { label: "Research Flow", description: "Run focused, AI-moderated research", href: "#research-flow" },
+  ],
+  Resources: [
+    { label: "Customer stories", description: "See how teams use forms to learn and grow", href: "#customer-stories" },
+    { label: "Integrations", description: "Connect your workflow with popular tools", href: "#integrations" },
+    { label: "Get started", description: "Sign in and create your first form", href: "/login" },
+  ],
+} as const;
+
+type MenuName = keyof typeof menus;
+
+function LandingNav() {
+  const [openMenu, setOpenMenu] = useState<MenuName | null>(null);
+  const navRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const closeOnOutsideClick = (event: MouseEvent) => {
+      if (!navRef.current?.contains(event.target as Node)) setOpenMenu(null);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpenMenu(null);
+    };
+    document.addEventListener("mousedown", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("mousedown", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, []);
+
+  return (
+    <header ref={navRef} className="relative z-50 mx-auto flex h-[76px] max-w-[1080px] items-center justify-between px-6">
+      <Link href="/" className="text-[23px] font-semibold tracking-[-.065em]">typeform</Link>
+      <nav className="hidden items-center gap-2 text-[12px] text-[#d8d0d9] md:flex">
+        {(Object.keys(menus) as MenuName[]).map((name) => {
+          const isOpen = openMenu === name;
+          return (
+            <button
+              key={name}
+              type="button"
+              aria-expanded={isOpen}
+              onClick={() => setOpenMenu(isOpen ? null : name)}
+              className={`rounded-md px-3 py-2 transition hover:bg-white/10 hover:text-white ${isOpen ? "bg-white/10 text-white" : ""}`}
+            >
+              {name} <span className="ml-1 inline-block text-[11px] transition-transform">{isOpen ? "⌃" : "⌄"}</span>
+            </button>
+          );
+        })}
+        <Link href="/login" className="rounded-md px-3 py-2 hover:bg-white/10 hover:text-white">Pricing</Link>
+      </nav>
+      <div className="flex items-center gap-3 text-[12px]"><Link href="/login" className="hidden text-[#eee9ee] sm:inline">Log in</Link><Link href="/login"><PillButton dark>Sign up</PillButton></Link></div>
+
+      {openMenu && (
+        <div className="absolute left-6 right-6 top-[68px] overflow-hidden rounded-2xl border border-[#59465e] bg-[#2d232f]/[.98] p-5 shadow-[0_24px_70px_rgba(0,0,0,.45)] backdrop-blur-xl sm:left-1/2 sm:right-auto sm:w-[560px] sm:-translate-x-1/2">
+          <div className="grid gap-2 sm:grid-cols-3">
+            {menus[openMenu].map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                onClick={() => setOpenMenu(null)}
+                className="group rounded-xl p-4 transition hover:bg-[#443248]"
+              >
+                <p className="text-[13px] font-semibold text-[#f5f2ef] group-hover:text-[#e1a7f2]">{item.label}</p>
+                <p className="mt-2 text-[11px] leading-4 text-[#bfb1c2]">{item.description}</p>
+                <span className="mt-4 block text-[11px] text-[#db9aee]">Explore →</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+    </header>
+  );
+}
+
+function PillButton({ children, dark = false }: { children: React.ReactNode; dark?: boolean }) {
+  return (
+    <span
+      className={`inline-flex rounded-full border px-5 py-2.5 text-[12px] font-semibold transition-transform hover:-translate-y-0.5 ${
+        dark
+          ? "border-[#75677b] bg-[#f7f4ef] text-[#281d29]"
+          : "border-[#443847] bg-[#2d232f] text-white"
+      }`}
+    >
+      {children}
+    </span>
+  );
+}
+
+function BuilderVisual() {
+  return (
+    <div className="relative h-[340px] overflow-hidden rounded-[18px] border border-[#765b7c] bg-[radial-gradient(circle_at_67%_32%,rgba(230,188,128,.8),transparent_22%),radial-gradient(circle_at_20%_62%,rgba(120,76,54,.85),transparent_34%),linear-gradient(125deg,#4e352f,#bd9569_42%,#4f3d41)] shadow-[0_20px_80px_rgba(0,0,0,.3)] sm:h-[480px]">
+      <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(35,24,35,.35),transparent_50%,rgba(35,24,35,.2))]" />
+      <div className="absolute left-[8%] top-[20%] h-[64%] w-[24%] rounded-full bg-[#2c2225]/60 blur-[3px]" />
+      <div className="absolute right-[14%] top-[5%] h-[90%] w-[25%] rotate-[14deg] rounded-[48%] bg-[#2f2524]/55 blur-[2px]" />
+      <div className="absolute left-1/2 top-1/2 w-[240px] -translate-x-1/2 -translate-y-1/2 rounded-[16px] border border-[#d4cd70]/50 bg-[#a9aa3d] p-5 text-[#24231d] shadow-2xl sm:w-[285px] sm:p-6">
+        <p className="text-[10px] font-bold uppercase tracking-[.14em]">FitCo</p>
+        <p className="mt-5 text-[21px] font-semibold leading-[1.03] sm:text-[26px]">
+          Share your email for a free virtual class
+        </p>
+        <div className="mt-5 rounded-md bg-[#d3d368]/70 px-3 py-2 text-[10px] text-[#706d30]">
+          robin@gmail.com
+        </div>
+        <button className="mt-2 rounded-md bg-[#f5efcf] px-5 py-2 text-[10px] font-semibold">
+          Submit
+        </button>
+      </div>
+      <div className="absolute bottom-5 right-5 rounded-full bg-white px-4 py-2 text-[11px] font-semibold text-[#322834] shadow-lg">
+        ✦ AI-powered
+      </div>
+    </div>
+  );
+}
+
+function ProductVisual({ kind }: { kind: "growth" | "research" }) {
+  const growth = kind === "growth";
+  return (
+    <div className="relative h-[270px] overflow-hidden rounded-[18px] border border-[#725a78] bg-[radial-gradient(circle_at_68%_18%,rgba(192,98,239,.45),transparent_24%),linear-gradient(135deg,#3c2a43,#211c27)]">
+      <div className="absolute -left-10 bottom-[-45px] h-40 w-72 rounded-full bg-[#873d9b]/40 blur-3xl" />
+      <div className="absolute right-[9%] top-[13%] w-[58%] rounded-xl bg-[#b4ad47] p-4 text-[#25221e] shadow-2xl rotate-[4deg]">
+        <p className="text-[9px] font-bold uppercase tracking-widest">{growth ? "Growth flow" : "Research flow"}</p>
+        <p className="mt-4 max-w-[175px] text-[17px] font-semibold leading-tight">
+          {growth ? "Be proactive with customer data" : "Run fast research, moderated by AI"}
+        </p>
+        <div className="mt-4 h-2 w-28 rounded bg-[#f4efc9]" />
+        <div className="mt-2 h-2 w-20 rounded bg-[#e5dfad]" />
+      </div>
+      <div className="absolute bottom-5 left-5 rounded-xl border border-[#c883e2]/60 bg-[#241b2b]/90 px-4 py-3 text-[10px] text-white">
+        <span className="text-[#dc9af4]">✦</span> {growth ? "Personalized follow-up" : "AI-moderated insight"}
+      </div>
+    </div>
+  );
+}
+
+function ProductSection({
+  eyebrow,
+  title,
+  text,
+  kind,
+  dark = false,
+}: {
+  eyebrow: string;
+  title: string;
+  text: string;
+  kind: "growth" | "research";
+  dark?: boolean;
+}) {
+  return (
+    <section id={kind === "growth" ? "growth-flow" : "research-flow"} className={`${dark ? "bg-[#281d29] text-white" : "bg-[#faf9f8] text-[#2d2630]"} px-6 py-24 sm:py-32`}>
+      <div className="mx-auto max-w-[960px]">
+        <h2 className={`${dark ? "text-[#f5f2ef]" : "text-[#2d2630]"} mx-auto max-w-[470px] text-center font-serif text-[40px] leading-[.98] tracking-[-.05em] sm:text-[54px]`}>
+          {kind === "growth" ? "When the form ends,\nthe flow begins..." : "Make every interaction count."}
+        </h2>
+        <div className="mt-16 grid items-center gap-12 md:grid-cols-2">
+          <div className="order-2 md:order-1">
+            <p className="text-[11px] font-bold uppercase tracking-[.14em] text-[#b876dc]">{eyebrow}</p>
+            <h3 className={`${dark ? "text-[#f5f2ef]" : "text-[#2d2630]"} mt-5 whitespace-pre-line font-serif text-[36px] leading-[.98] tracking-[-.045em] sm:text-[46px]`}>{title}</h3>
+            <p className={`${dark ? "text-[#d4cbd7]" : "text-[#68606a]"} mt-5 max-w-[390px] text-[14px] leading-6`}>{text}</p>
+            <div className="mt-7"><PillButton dark={!dark}>Explore {kind === "growth" ? "Growth Flow" : "Research Flow"}</PillButton></div>
+          </div>
+          <div className="order-1 md:order-2"><ProductVisual kind={kind} /></div>
+        </div>
+        <div className="mt-16 grid gap-6 border-t border-[#94769d]/30 pt-8 sm:grid-cols-3">
+          {features.map((feature) => (
+            <div key={feature.title} className="flex gap-3">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#27172e] text-[#dc9af4]">{feature.icon}</span>
+              <div><h4 className="text-[13px] font-semibold">{feature.title}</h4><p className={`${dark ? "text-[#c8bdcb]" : "text-[#716875]"} mt-1 text-[11px] leading-4`}>{feature.text}</p></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen overflow-hidden bg-[#281d29] text-[#f9f7f3]">
-      <header className="mx-auto flex h-[76px] max-w-[1440px] items-center justify-between px-6 lg:px-10">
-        <Link href="/" className="text-[24px] font-semibold tracking-[-.065em]">typeform</Link>
-        <nav className="hidden items-center gap-8 text-[14px] font-medium text-[#eee9ee] lg:flex">
-          <button type="button">Platform</button><button type="button">Solutions</button><button type="button">Resources</button><button type="button">Pricing</button>
-        </nav>
-        <div className="flex items-center gap-4 text-[14px] font-medium">
-          <Link href="/workspace" className="hidden text-[#eee9ee] sm:inline">Log in</Link>
-          <Link href="/workspace" className="rounded-full bg-[#f5f2ee] px-5 py-2.5 text-[#2a1f2b] transition-transform hover:-translate-y-px">Get started</Link>
-        </div>
-      </header>
+    <main className="overflow-hidden bg-[#281d29] text-[#f9f7f3]">
+      <LandingNav />
 
-      <section className="mx-auto max-w-[1220px] px-6 pt-12 text-center sm:pt-20">
-        <p className="mb-5 text-[11px] font-semibold uppercase tracking-[.16em] text-[#bcaac1]">AI forms &amp; automation</p>
-        <h1 className="mx-auto max-w-[760px] font-serif text-[48px] leading-[.94] tracking-[-.055em] sm:text-[72px] lg:text-[88px]">Your favorite forms.<br />Now with AI automation.</h1>
-        <p className="mx-auto mt-7 max-w-[610px] text-[16px] leading-[1.5] text-[#d6cfd7] sm:text-[18px]">Combine AI forms and automated workflows to drive revenue growth. Run in-depth research and manage the entire customer lifecycle. All in Typeform.</p>
-        <Link href="/workspace" className="mt-8 inline-flex rounded-full bg-[#f7f4ef] px-6 py-3 text-[15px] font-semibold text-[#2a1f2b] transition-transform hover:-translate-y-px">Get started—it&apos;s free</Link>
-      </section>
+      <section className="mx-auto max-w-[1120px] px-6 pb-16 pt-14 text-center sm:pt-24">
+        <p className="mb-5 text-[10px] font-bold uppercase tracking-[.16em] text-[#cda8da]">AI forms &amp; automation</p>
+        <h1 className="mx-auto max-w-[800px] whitespace-pre-line font-serif text-[52px] leading-[.91] tracking-[-.06em] text-[#f5f2ef] sm:text-[76px] lg:text-[94px]">{"Your favorite forms.\nNow with AI automation."}</h1>
+        <p className="mx-auto mt-7 max-w-[570px] text-[14px] leading-5 text-[#d6cfd7]">Combine AI forms and automated workflows to drive revenue growth. Run in-depth research and manage the entire customer lifecycle. All in Typeform.</p>
+        <Link href="/login" className="mt-8 inline-flex rounded-full bg-[#f7f4ef] px-6 py-3 text-[12px] font-semibold text-[#2a1f2b] transition-transform hover:-translate-y-0.5">Get started—it&apos;s free</Link>
 
-      <section className="relative mx-auto mt-12 max-w-[1080px] px-6 pb-14 sm:mt-16">
-        <div className="grid gap-3 md:grid-cols-3">
-          {productCards.map((card) => (
-            <article key={card.title} className={`rounded-[14px] border p-4 text-left backdrop-blur-sm ${card.active ? "border-[#b894c2] bg-[#403044]" : "border-[#513e55] bg-[#342738]"}`}>
-              <p className="text-[10px] font-semibold tracking-[.12em] text-[#c9b4cd]">{card.eyebrow}</p>
-              <div className="mt-5 flex items-center gap-2 text-[16px] font-semibold">{card.title}{card.title !== "Intelligent Forms" && <span className="rounded-full bg-[#b774e7] px-1.5 py-0.5 text-[9px] text-[#281d29]">New</span>}</div>
-              <p className="mt-2 min-h-[42px] text-[12px] leading-[1.4] text-[#d2c8d3]">{card.text}</p>
-              <div className={`mt-5 h-px ${card.active ? "bg-[#d986f3]" : "bg-[#77617b]"}`} />
-            </article>
-          ))}
-        </div>
-        <div className="relative mt-4 h-[320px] overflow-hidden rounded-[14px] border border-[#624d65] bg-[radial-gradient(circle_at_66%_35%,rgba(239,180,120,.55),transparent_22%),radial-gradient(circle_at_22%_54%,rgba(128,80,55,.76),transparent_30%),linear-gradient(125deg,#52392f_0%,#bc9367_39%,#6c4f37_72%,#342430_100%)] sm:h-[470px]">
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(32,22,33,.2),transparent_45%,rgba(32,22,33,.15))]" />
-          <div className="absolute left-[13%] top-[14%] h-[72%] w-[23%] rounded-full bg-[#2c2225]/60 blur-[2px]" />
-          <div className="absolute right-[16%] top-[5%] h-[90%] w-[24%] rotate-[12deg] rounded-[48%] bg-[#2f2524]/55 blur-[1px]" />
-          <div className="absolute left-1/2 top-1/2 w-[205px] -translate-x-1/2 -translate-y-1/2 rounded-[10px] bg-[#a8aa3d] p-4 text-left text-[#202019] shadow-2xl sm:w-[248px] sm:p-5">
-            <p className="text-[10px] font-semibold uppercase tracking-[.12em]">Quiz</p><p className="mt-5 text-[18px] font-semibold leading-[1.05] sm:text-[22px]">Thank you for signing up for an adventure.</p><div className="mt-8 flex h-9 w-9 items-center justify-center rounded-full bg-[#f7f5e8] text-[15px]">▶</div>
+        <div className="mx-auto mt-16 max-w-[900px]">
+          <div className="grid gap-2 sm:grid-cols-3">
+            {[
+              ["ASK", "Intelligent Forms", "Build forms that adapt to every respondent."],
+              ["ACT", "Growth Flow", "Automate follow-ups and keep customers close."],
+              ["LEARN", "Research Flow", "Make confident decisions with AI research."],
+            ].map(([eyebrow, title, copy], index) => (
+              <div key={title} className={`rounded-xl border p-4 text-left ${index === 1 ? "border-[#a76abe] bg-[#3b2d40]" : "border-[#4b3a50] bg-[#302431]"}`}>
+                <p className="text-[9px] font-bold tracking-widest text-[#c8afd0]">{eyebrow}</p><p className="mt-4 text-[14px] font-semibold">{title}{index > 0 && <span className="ml-2 rounded-full bg-[#b76ade] px-1.5 py-0.5 text-[8px] text-[#291c2c]">NEW</span>}</p><p className="mt-2 text-[11px] leading-4 text-[#d0c5d2]">{copy}</p><div className={`mt-5 h-0.5 w-10 ${index === 1 ? "bg-[#db83f3]" : "bg-[#785782]"}`} />
+              </div>
+            ))}
           </div>
+          <div id="form-builder" className="mt-3"><BuilderVisual /></div>
         </div>
       </section>
+
+      <section id="intelligent-forms" className="bg-[#faf9f8] px-6 py-24 text-[#2d2630] sm:py-32">
+        <div className="mx-auto grid max-w-[960px] items-center gap-14 md:grid-cols-2">
+          <div><p className="text-[11px] font-bold uppercase tracking-[.14em] text-[#ae63cb]">Intelligent forms</p><h2 className="mt-5 max-w-[430px] font-serif text-[45px] leading-[.95] tracking-[-.05em] sm:text-[58px]">Build forms at the drop of a prompt</h2><p className="mt-6 max-w-[390px] text-[14px] leading-6 text-[#68606a]">With over 48 million responses collected monthly, Typeform AI builds best-in-class forms from your ideas. Brand easily, customize everything.</p><Link href="/login" className="mt-7 inline-flex rounded-full bg-[#2b222e] px-5 py-3 text-[12px] font-semibold text-white">Explore forms</Link></div>
+          <BuilderVisual />
+        </div>
+        <div className="mx-auto mt-16 grid max-w-[960px] gap-6 border-t border-[#ddd5dd] pt-8 sm:grid-cols-3">{features.map((feature) => <div key={feature.title} className="flex gap-3"><span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#2a1e2c] text-[#e6b8f1]">{feature.icon}</span><div><h4 className="text-[13px] font-semibold">{feature.title}</h4><p className="mt-1 text-[11px] leading-4 text-[#716875]">{feature.text}</p></div></div>)}</div>
+      </section>
+
+      <ProductSection eyebrow="Growth Flow" title={"Be proactive with\ncustomer data"} text="Set up automations that connect with your customers at just the right moment. Turn every response into a signal for a more personal experience." kind="growth" dark />
+      <ProductSection eyebrow="Research Flow" title={"Run fast research,\nmoderated by AI"} text="Make data-backed decisions with AI-moderated research. Ask better questions, reach the right audience, and understand what people really think." kind="research" />
+
+      <section id="customer-stories" className="bg-[#faf9f8] px-6 py-24 text-center text-[#2d2630] sm:py-32">
+        <h2 className="font-serif text-[36px] tracking-[-.04em] sm:text-[46px]">Join 150,000+ businesses driving revenue with Typeform</h2>
+        <div className="mx-auto mt-10 flex max-w-[760px] flex-wrap justify-center gap-2">{logos.map((logo) => <span key={logo} className="rounded-xl bg-white px-6 py-4 text-[15px] font-semibold shadow-sm">{logo}</span>)}</div>
+        <div className="mx-auto mt-16 grid max-w-[960px] gap-3 text-left md:grid-cols-3"><article className="rounded-2xl bg-[#ead8f8] p-8 md:col-span-1"><p className="text-2xl">↗</p><p className="mt-8 font-serif text-[28px] leading-tight">Viva scaled talent acquisition and cut time to hire by 75%</p></article><article className="rounded-2xl bg-[#f0eef1] p-8"><p className="text-2xl">◉</p><p className="mt-8 font-serif text-[25px] leading-tight">SmartBug increased sales leads by 40% with one form</p></article><article className="rounded-2xl bg-[#eee9f4] p-8"><p className="text-2xl">◎</p><p className="mt-8 font-serif text-[25px] leading-tight">Double Denim drives better customer conversations</p></article></div>
+        <button className="mt-8 rounded-full border border-[#77707a] px-5 py-2 text-[11px] font-semibold">Read all customer stories</button>
+      </section>
+
+      <section id="integrations" className="bg-[#faf9f8] px-6 pb-24 text-center text-[#2d2630]"><div className="mx-auto max-w-[680px] rounded-[38px] bg-white px-8 py-14 shadow-[0_8px_40px_rgba(65,43,70,.08)]"><h2 className="text-[20px] font-semibold">Integrate with your tech stack</h2><div className="mt-8 flex flex-wrap justify-center gap-2">{["HubSpot", "klaviyo", "slack", "stripe", "Webflow", "zapier", "Calendly"].map((name) => <span key={name} className="rounded-lg bg-[#faf8fb] px-4 py-3 text-[12px] font-semibold">{name}</span>)}</div><button className="mt-8 rounded-full border border-[#77707a] px-5 py-2 text-[11px] font-semibold">View integrations</button></div></section>
+
+      <footer className="bg-[#281d29] px-6 pb-10 pt-24 text-white"><div className="mx-auto max-w-[960px] text-center"><h2 className="font-serif text-[45px] leading-[.95] tracking-[-.05em] text-[#f5f2ef] sm:text-[60px]">AI forms and automation.<br />All in Typeform.</h2><Link href="/login" className="mt-8 inline-flex rounded-full bg-[#f7f4ef] px-6 py-3 text-[12px] font-semibold text-[#2a1f2b]">Get started—it&apos;s free</Link><div className="mt-24 grid grid-cols-2 gap-8 text-left text-[11px] text-[#c7bdca] sm:grid-cols-5"><div><b className="text-white">PRODUCT</b><p className="mt-4">Forms<br />Growth Flow<br />Research Flow</p></div><div><b className="text-white">TEMPLATES</b><p className="mt-4">Lead generation<br />Surveys<br />Quizzes</p></div><div><b className="text-white">INTEGRATIONS</b><p className="mt-4">HubSpot<br />Slack<br />Zapier</p></div><div><b className="text-white">RESOURCES</b><p className="mt-4">Blog<br />Help center<br />Customers</p></div><div><b className="text-white">GET TO KNOW US</b><p className="mt-4">About<br />Careers<br />Contact</p></div></div></div></footer>
     </main>
   );
 }

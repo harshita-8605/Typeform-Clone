@@ -3,6 +3,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from sqlalchemy import inspect, text
+
 from app.database import SessionLocal, engine, Base
 from app.routers import forms, public
 
@@ -10,6 +12,9 @@ from app.routers import forms, public
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
+    if "owner_email" not in {column["name"] for column in inspect(engine).get_columns("forms")}:
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE forms ADD COLUMN owner_email VARCHAR"))
     yield
 
 

@@ -31,11 +31,26 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). API documentation is at [http://localhost:8000/docs](http://localhost:8000/docs), and the health check is `GET /api/health`.
 
+### Google login configuration
+
+Creator pages are protected by Google-only Auth.js login. The landing page and
+public `/f/[slug]` respondent links remain accessible without an account.
+
+1. Create a Google OAuth 2.0 Web application in Google Cloud.
+2. Add `http://localhost:3000/api/auth/callback/google` as an authorized redirect URI.
+3. Copy `frontend/.env.example` to `frontend/.env.local`.
+4. Set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and a long random
+   `NEXTAUTH_SECRET`.
+
+After login, creators are redirected to `/workspace`. In production, replace
+`NEXTAUTH_URL` and the Google redirect URI with the deployed frontend URL.
+
 `backend/seed.py` resolves the SQLite file relative to the backend itself, so it also works when invoked from the repository root as `backend/venv/bin/python backend/seed.py --reset`.
 
 ## What is included
 
 - Workspace with create, rename, duplicate, delete, publish/unpublish, share, and results actions.
+- Public landing page with Google-only creator login and protected creator routes.
 - Drag-sortable builder supporting short text, long text, multiple choice, dropdown, email, number, yes/no, and rating questions.
 - Debounced builder saves, question descriptions, required controls, option and rating editors, live preview, toasts, and settings/theme placeholders.
 - Public `/f/[slug]` flow with keyboard controls, client/server validation, animated question transitions, progress, and a thank-you state.
@@ -68,7 +83,7 @@ The same service layer is used by the API and seed script; the seeder does not m
 
 | Table | Key fields | Relationships |
 | --- | --- | --- |
-| `forms` | `id`, `title`, unique `slug`, `status`, theme/thank-you JSON/text, timestamps | Owns questions and responses |
+| `forms` | `id`, `owner_email`, `title`, unique `slug`, `status`, theme/thank-you JSON/text, timestamps | Owns questions and responses |
 | `questions` | `form_id`, `order_index`, type, title, description, required, `options_json` | Unique `(form_id, order_index)`; owns answers |
 | `responses` | `form_id`, respondent metadata JSON, timestamp | Owns answers |
 | `answers` | `response_id`, `question_id`, typed value columns | Unique `(response_id, question_id)` |
@@ -99,4 +114,4 @@ cd frontend && npm run build
 cd ../backend && python seed.py --reset
 ```
 
-The seed output prints public URLs for both generated forms. The application uses a default creator identity intentionally; public form filling has no auth requirement.
+The seed output prints public URLs for both generated forms. Creator API requests are scoped to the authenticated Google email through the `X-Creator-Email` header; public form filling has no auth requirement. Existing databases receive the nullable `owner_email` column automatically at API startup.

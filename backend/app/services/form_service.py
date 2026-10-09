@@ -23,11 +23,14 @@ def _generate_unique_slug(db: Session, length: int = 8) -> str:
             return slug
 
 
-def get_form(db: Session, form_id: int) -> Optional[Form]:
-    return db.query(Form).filter(Form.id == form_id).first()
+def get_form(db: Session, form_id: int, owner_email: Optional[str] = None) -> Optional[Form]:
+    query = db.query(Form).filter(Form.id == form_id)
+    if owner_email:
+        query = query.filter(Form.owner_email == owner_email)
+    return query.first()
 
 
-def list_forms(db: Session) -> List[Dict[str, Any]]:
+def list_forms(db: Session, owner_email: Optional[str] = None) -> List[Dict[str, Any]]:
     count_subquery = (
         db.query(
             Response.form_id.label("form_id"),
@@ -49,6 +52,8 @@ def list_forms(db: Session) -> List[Dict[str, Any]]:
         .outerjoin(count_subquery, Form.id == count_subquery.c.form_id)
         .order_by(Form.updated_at.desc())
     )
+    if owner_email:
+        query = query.filter(Form.owner_email == owner_email)
 
     results = []
     for row in query.all():
@@ -65,9 +70,10 @@ def list_forms(db: Session) -> List[Dict[str, Any]]:
     return results
 
 
-def create_form(db: Session, form_data: Dict[str, Any]) -> Form:
+def create_form(db: Session, form_data: Dict[str, Any], owner_email: Optional[str] = None) -> Form:
     db_form = Form(
         title=form_data.get("title", "Untitled form"),
+        owner_email=owner_email,
         slug=form_data.get("slug"),
         status=form_data.get("status", "draft"),
         theme_json=form_data.get("theme_json"),
@@ -79,8 +85,8 @@ def create_form(db: Session, form_data: Dict[str, Any]) -> Form:
     return db_form
 
 
-def update_form(db: Session, form_id: int, update_data: Dict[str, Any]) -> Optional[Form]:
-    db_form = get_form(db, form_id)
+def update_form(db: Session, form_id: int, update_data: Dict[str, Any], owner_email: Optional[str] = None) -> Optional[Form]:
+    db_form = get_form(db, form_id, owner_email)
     if not db_form:
         return None
 
@@ -94,13 +100,14 @@ def update_form(db: Session, form_id: int, update_data: Dict[str, Any]) -> Optio
     return db_form
 
 
-def duplicate_form(db: Session, form_id: int) -> Optional[Form]:
-    db_form = get_form(db, form_id)
+def duplicate_form(db: Session, form_id: int, owner_email: Optional[str] = None) -> Optional[Form]:
+    db_form = get_form(db, form_id, owner_email)
     if not db_form:
         return None
 
     new_form = Form(
         title=f"{db_form.title} (Copy)",
+        owner_email=owner_email,
         slug=None,
         status="draft",
         theme_json=db_form.theme_json,
@@ -126,8 +133,8 @@ def duplicate_form(db: Session, form_id: int) -> Optional[Form]:
     return new_form
 
 
-def delete_form(db: Session, form_id: int) -> bool:
-    db_form = get_form(db, form_id)
+def delete_form(db: Session, form_id: int, owner_email: Optional[str] = None) -> bool:
+    db_form = get_form(db, form_id, owner_email)
     if not db_form:
         return False
     db.delete(db_form)
@@ -135,8 +142,8 @@ def delete_form(db: Session, form_id: int) -> bool:
     return True
 
 
-def publish_form(db: Session, form_id: int) -> Optional[Form]:
-    db_form = get_form(db, form_id)
+def publish_form(db: Session, form_id: int, owner_email: Optional[str] = None) -> Optional[Form]:
+    db_form = get_form(db, form_id, owner_email)
     if not db_form:
         return None
 
@@ -150,8 +157,8 @@ def publish_form(db: Session, form_id: int) -> Optional[Form]:
     return db_form
 
 
-def unpublish_form(db: Session, form_id: int) -> Optional[Form]:
-    db_form = get_form(db, form_id)
+def unpublish_form(db: Session, form_id: int, owner_email: Optional[str] = None) -> Optional[Form]:
+    db_form = get_form(db, form_id, owner_email)
     if not db_form:
         return None
 
@@ -166,8 +173,9 @@ def upsert_form_questions(
     db: Session,
     form_id: int,
     questions: List[Dict[str, Any]],
+    owner_email: Optional[str] = None,
 ) -> Optional[List[Question]]:
-    db_form = get_form(db, form_id)
+    db_form = get_form(db, form_id, owner_email)
     if not db_form:
         return None
 
