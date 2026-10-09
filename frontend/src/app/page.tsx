@@ -120,12 +120,12 @@ function PillButton({ children, dark = false }: { children: React.ReactNode; dar
   );
 }
 
-function BuilderVisual() {
+function BuilderVisual({ src = "/videos/landing-demo.mp4" }: { src?: string }) {
   return (
     <div className="relative h-[340px] overflow-hidden rounded-[18px] border border-[#765b7c] bg-[#342735] shadow-[0_20px_80px_rgba(0,0,0,.3)] sm:h-[480px]">
       <video
         className="h-full w-full object-cover"
-        src="/videos/landing-demo.mp4"
+        src={src}
         autoPlay
         muted
         loop
@@ -228,7 +228,7 @@ export default function HomePage() {
       <section id="intelligent-forms" className="bg-[#faf9f8] px-6 py-24 text-[#2d2630] sm:py-32">
         <div className="mx-auto grid max-w-[960px] items-center gap-14 md:grid-cols-2">
           <div><p className="text-[11px] font-bold uppercase tracking-[.14em] text-[#ae63cb]">Intelligent forms</p><h2 className="mt-5 max-w-[430px] font-serif text-[45px] leading-[.95] tracking-[-.05em] sm:text-[58px]">Build forms at the drop of a prompt</h2><p className="mt-6 max-w-[390px] text-[14px] leading-6 text-[#68606a]">With over 48 million responses collected monthly, Typeform AI builds best-in-class forms from your ideas. Brand easily, customize everything.</p><Link href="/login" className="mt-7 inline-flex rounded-full bg-[#2b222e] px-5 py-3 text-[12px] font-semibold text-white">Explore forms</Link></div>
-          <BuilderVisual />
+          <BuilderVisual src="/videos/intelligent-forms-demo.mp4" />
         </div>
         <div className="mx-auto mt-16 grid max-w-[960px] gap-6 border-t border-[#ddd5dd] pt-8 sm:grid-cols-3">{features.map((feature) => <div key={feature.title} className="flex gap-3"><span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#2a1e2c] text-[#e6b8f1]">{feature.icon}</span><div><h4 className="text-[13px] font-semibold">{feature.title}</h4><p className="mt-1 text-[11px] leading-4 text-[#716875]">{feature.text}</p></div></div>)}</div>
       </section>
