@@ -30,6 +30,12 @@ export default function WorkspacePage() {
   const [createTitle, setCreateTitle] = useState("");
   const [createLoading, setCreateLoading] = useState(false);
   const createInputRef = React.useRef<HTMLInputElement>(null);
+  const [workspaceNames, setWorkspaceNames] = useState<string[]>(["My workspace"]);
+  const [selectedWorkspace, setSelectedWorkspace] = useState("My workspace");
+  const [workspaceOpen, setWorkspaceOpen] = useState(false);
+  const [workspaceName, setWorkspaceName] = useState("");
+  const [workspaceLoading, setWorkspaceLoading] = useState(false);
+  const workspaceInputRef = React.useRef<HTMLInputElement>(null);
 
   const fetchForms = useCallback(async () => {
     setIsLoading(true);
@@ -64,6 +70,20 @@ export default function WorkspacePage() {
     if (creatorEmail) void fetchForms();
   }, [creatorEmail, fetchForms]);
 
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem("typeform-workspaces");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.every((name) => typeof name === "string")) {
+          setWorkspaceNames(Array.from(new Set(["My workspace", ...parsed])));
+        }
+      }
+    } catch {
+      // Workspace names are a UI preference; fall back to the default workspace.
+    }
+  }, []);
+
   const visibleForms = useMemo(() => {
     const query = search.trim().toLowerCase();
     return forms
@@ -81,6 +101,35 @@ export default function WorkspacePage() {
     setCreateTitle("");
     setCreateLoading(false);
     setCreateOpen(true);
+  };
+
+  const openWorkspaceCreate = () => {
+    setWorkspaceName("");
+    setWorkspaceLoading(false);
+    setWorkspaceOpen(true);
+  };
+
+  useEffect(() => {
+    if (workspaceOpen && workspaceInputRef.current) {
+      window.setTimeout(() => workspaceInputRef.current?.focus(), 50);
+    }
+  }, [workspaceOpen]);
+
+  const submitWorkspaceCreate = () => {
+    const name = workspaceName.trim();
+    if (!name) return;
+    if (workspaceNames.some((existing) => existing.toLowerCase() === name.toLowerCase())) {
+      showToast("A workspace with that name already exists", "error");
+      return;
+    }
+    setWorkspaceLoading(true);
+    const next = [...workspaceNames, name];
+    setWorkspaceNames(next);
+    setSelectedWorkspace(name);
+    window.localStorage.setItem("typeform-workspaces", JSON.stringify(next));
+    setWorkspaceLoading(false);
+    setWorkspaceOpen(false);
+    showToast("Workspace created", "success");
   };
 
   useEffect(() => {
@@ -178,16 +227,31 @@ export default function WorkspacePage() {
         </button>
         <nav className="mt-7 space-y-1 text-[14px]">
           <p className="px-3 pb-2 text-[11px] tracking-[.08em] font-semibold text-[#777]">WORKSPACES</p>
-          <button type="button" className="w-full flex items-center gap-2 rounded-md bg-[#efefed] px-3 py-2 text-left font-medium">
-            <span className="h-5 w-5 rounded-full bg-[#dcdad6] flex items-center justify-center text-[11px]">⌂</span> My workspace
-          </button>
-          <button type="button" className="w-full flex items-center gap-2 rounded-md px-3 py-2 text-left text-[#5f5f5c] hover:bg-[#f4f4f2]">
+          {workspaceNames.map((workspace) => (
+            <button
+              key={workspace}
+              type="button"
+              onClick={() => setSelectedWorkspace(workspace)}
+              className={`w-full flex items-center justify-between gap-2 rounded-md px-3 py-2 text-left font-medium ${
+                selectedWorkspace === workspace ? "bg-[#efefed] text-[#403343]" : "text-[#5f5f5c] hover:bg-[#f4f4f2]"
+              }`}
+            >
+              <span className="flex items-center gap-2">
+                <span className="h-5 w-5 rounded-full bg-[#dcdad6] flex items-center justify-center text-[11px]">⌂</span>
+                {workspace}
+              </span>
+              <span className="text-xs text-[#777]">
+                {workspace === "My workspace" ? forms.length : 0}
+              </span>
+            </button>
+          ))}
+          <button type="button" onClick={openWorkspaceCreate} className="w-full flex items-center gap-2 rounded-md px-3 py-2 text-left text-[#5f5f5c] hover:bg-[#f4f4f2]">
             <span className="text-[17px]">+</span> Create workspace
           </button>
         </nav>
         <nav className="mt-8 space-y-1 text-[14px] text-[#5f5f5c]">
-          <button type="button" className="w-full flex items-center gap-3 rounded-md px-3 py-2 text-left hover:bg-[#f4f4f2]"><span>◫</span> Apps & integrations</button>
-          <button type="button" className="w-full flex items-center gap-3 rounded-md px-3 py-2 text-left hover:bg-[#f4f4f2]"><span>◇</span> Brand kit</button>
+          <button type="button" onClick={() => openComingSoon("Apps & integrations")} className="w-full flex items-center gap-3 rounded-md px-3 py-2 text-left hover:bg-[#f4f4f2]"><span>◫</span> Apps & integrations</button>
+          <button type="button" onClick={() => openComingSoon("Brand kit")} className="w-full flex items-center gap-3 rounded-md px-3 py-2 text-left hover:bg-[#f4f4f2]"><span>◇</span> Brand kit</button>
         </nav>
         <div className="mt-auto border-t border-[#ececea] pt-4">
           <button type="button" className="w-full flex items-center gap-3 rounded-md px-3 py-2 text-left text-[14px] hover:bg-[#f4f4f2]">
@@ -201,7 +265,7 @@ export default function WorkspacePage() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 mb-9">
             <div>
               <p className="text-[13px] text-[#777] mb-2">Workspace</p>
-              <h1 className="text-[30px] font-semibold tracking-[-.045em] text-[#20201f] leading-tight">My workspace</h1>
+              <h1 className="text-[30px] font-semibold tracking-[-.045em] text-[#20201f] leading-tight">{selectedWorkspace}</h1>
             </div>
             <Button size="md" onClick={openCreate} className="!rounded-lg !bg-[#242424] hover:!bg-black !h-10 !px-4">
               <svg
@@ -251,12 +315,12 @@ export default function WorkspacePage() {
 
         <div className="relative rounded-lg border border-[#e5e5e2] bg-white">
           <FormsList
-            forms={visibleForms}
+            forms={selectedWorkspace === "My workspace" ? visibleForms : []}
             isLoading={isLoading}
             onRefresh={fetchForms}
           />
 
-          {!isLoading && forms.length === 0 && (
+          {!isLoading && (selectedWorkspace === "My workspace" ? forms.length === 0 : true) && (
             <div className="absolute inset-x-0 bottom-0 flex justify-center pointer-events-none -translate-y-4">
               <div className="pointer-events-auto">
                 <Button size="md" onClick={handleEmptyCreate}>
@@ -324,6 +388,37 @@ export default function WorkspacePage() {
         <p className="mt-3 text-xs text-[rgb(var(--text-secondary))]">
           You can change this later at any time.
         </p>
+      </Modal>
+
+      <Modal
+        open={workspaceOpen}
+        onClose={() => !workspaceLoading && setWorkspaceOpen(false)}
+        title="Add workspace"
+        footer={
+          <>
+            <Button variant="outline" size="md" onClick={() => setWorkspaceOpen(false)} disabled={workspaceLoading}>
+              Cancel
+            </Button>
+            <Button variant="primary" size="md" onClick={submitWorkspaceCreate} isLoading={workspaceLoading} disabled={!workspaceName.trim()}>
+              Add workspace
+            </Button>
+          </>
+        }
+      >
+        <label className="block text-sm font-medium text-[rgb(var(--text-primary))] mb-2">
+          Workspace name
+        </label>
+        <input
+          ref={workspaceInputRef}
+          type="text"
+          value={workspaceName}
+          onChange={(e) => setWorkspaceName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") submitWorkspaceCreate();
+          }}
+          placeholder="New workspace"
+          className="input-base"
+        />
       </Modal>
     </div>
   );
