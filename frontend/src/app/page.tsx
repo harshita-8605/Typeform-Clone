@@ -156,19 +156,17 @@ function ProductVisual({ kind }: { kind: "growth" | "research" }) {
     );
   }
   return (
-    <div className="relative h-[270px] overflow-hidden rounded-[18px] border border-[#725a78] bg-[radial-gradient(circle_at_68%_18%,rgba(192,98,239,.45),transparent_24%),linear-gradient(135deg,#3c2a43,#211c27)]">
-      <div className="absolute -left-10 bottom-[-45px] h-40 w-72 rounded-full bg-[#873d9b]/40 blur-3xl" />
-      <div className="absolute right-[9%] top-[13%] w-[58%] rounded-xl bg-[#b4ad47] p-4 text-[#25221e] shadow-2xl rotate-[4deg]">
-        <p className="text-[9px] font-bold uppercase tracking-widest">{growth ? "Growth flow" : "Research flow"}</p>
-        <p className="mt-4 max-w-[175px] text-[17px] font-semibold leading-tight">
-          {growth ? "Be proactive with customer data" : "Run fast research, moderated by AI"}
-        </p>
-        <div className="mt-4 h-2 w-28 rounded bg-[#f4efc9]" />
-        <div className="mt-2 h-2 w-20 rounded bg-[#e5dfad]" />
-      </div>
-      <div className="absolute bottom-5 left-5 rounded-xl border border-[#c883e2]/60 bg-[#241b2b]/90 px-4 py-3 text-[10px] text-white">
-        <span className="text-[#dc9af4]">✦</span> {growth ? "Personalized follow-up" : "AI-moderated insight"}
-      </div>
+    <div className="relative h-[270px] overflow-hidden rounded-[18px] border border-[#725a78] bg-[#241c2b] shadow-[0_20px_60px_rgba(0,0,0,.25)]">
+      <video
+        className="h-full w-full object-cover"
+        src="/videos/research-flow-demo.mp4"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        aria-label="Research Flow product demonstration"
+      />
     </div>
   );
 }
