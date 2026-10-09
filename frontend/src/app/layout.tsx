@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "@/styles/globals.css";
 import { ToastProvider } from "@/hooks/useToast";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export const metadata: Metadata = {
   title: "Typeform Clone — Build beautiful conversational forms",
@@ -18,7 +19,10 @@ export default function RootLayout({
       className="font-sans"
     >
       <body className="min-h-screen antialiased text-[rgb(var(--tf-text))] bg-[rgb(var(--tf-canvas))]">
-        <ToastProvider>{children}</ToastProvider>
+        <ToastProvider>
+          {children}
+          <ThemeToggle />
+        </ToastProvider>
       </body>
     </html>
   );
