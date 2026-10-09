@@ -122,25 +122,17 @@ function PillButton({ children, dark = false }: { children: React.ReactNode; dar
 
 function BuilderVisual() {
   return (
-    <div className="relative h-[340px] overflow-hidden rounded-[18px] border border-[#765b7c] bg-[radial-gradient(circle_at_67%_32%,rgba(230,188,128,.8),transparent_22%),radial-gradient(circle_at_20%_62%,rgba(120,76,54,.85),transparent_34%),linear-gradient(125deg,#4e352f,#bd9569_42%,#4f3d41)] shadow-[0_20px_80px_rgba(0,0,0,.3)] sm:h-[480px]">
-      <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(35,24,35,.35),transparent_50%,rgba(35,24,35,.2))]" />
-      <div className="absolute left-[8%] top-[20%] h-[64%] w-[24%] rounded-full bg-[#2c2225]/60 blur-[3px]" />
-      <div className="absolute right-[14%] top-[5%] h-[90%] w-[25%] rotate-[14deg] rounded-[48%] bg-[#2f2524]/55 blur-[2px]" />
-      <div className="absolute left-1/2 top-1/2 w-[240px] -translate-x-1/2 -translate-y-1/2 rounded-[16px] border border-[#d4cd70]/50 bg-[#a9aa3d] p-5 text-[#24231d] shadow-2xl sm:w-[285px] sm:p-6">
-        <p className="text-[10px] font-bold uppercase tracking-[.14em]">FitCo</p>
-        <p className="mt-5 text-[21px] font-semibold leading-[1.03] sm:text-[26px]">
-          Share your email for a free virtual class
-        </p>
-        <div className="mt-5 rounded-md bg-[#d3d368]/70 px-3 py-2 text-[10px] text-[#706d30]">
-          robin@gmail.com
-        </div>
-        <button className="mt-2 rounded-md bg-[#f5efcf] px-5 py-2 text-[10px] font-semibold">
-          Submit
-        </button>
-      </div>
-      <div className="absolute bottom-5 right-5 rounded-full bg-white px-4 py-2 text-[11px] font-semibold text-[#322834] shadow-lg">
-        ✦ AI-powered
-      </div>
+    <div className="relative h-[340px] overflow-hidden rounded-[18px] border border-[#765b7c] bg-[#342735] shadow-[0_20px_80px_rgba(0,0,0,.3)] sm:h-[480px]">
+      <video
+        className="h-full w-full object-cover"
+        src="/videos/landing-demo.mp4"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        aria-label="Typeform product demonstration"
+      />
     </div>
   );
 }
