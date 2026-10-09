@@ -90,7 +90,7 @@ This project uses the stack requested in the assignment:
 - **Backend:** Python, FastAPI, SQLAlchemy, and Pydantic.
 - **Database:** SQLite.
 - **Authentication:** Google OAuth through Auth.js/NextAuth.
-- **Deployment:** Vercel for the frontend and Render for the backend.
+- **Deployment:** On Vercel
 
 ## Project structure
 
