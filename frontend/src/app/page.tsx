@@ -139,6 +139,22 @@ function BuilderVisual({ src = "/videos/landing-demo.mp4" }: { src?: string }) {
 
 function ProductVisual({ kind }: { kind: "growth" | "research" }) {
   const growth = kind === "growth";
+  if (growth) {
+    return (
+      <div className="relative h-[270px] overflow-hidden rounded-[18px] border border-[#725a78] bg-[#241c2b] shadow-[0_20px_60px_rgba(0,0,0,.25)]">
+        <video
+          className="h-full w-full object-cover"
+          src="/videos/growth-flow-demo.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-label="Growth Flow product demonstration"
+        />
+      </div>
+    );
+  }
   return (
     <div className="relative h-[270px] overflow-hidden rounded-[18px] border border-[#725a78] bg-[radial-gradient(circle_at_68%_18%,rgba(192,98,239,.45),transparent_24%),linear-gradient(135deg,#3c2a43,#211c27)]">
       <div className="absolute -left-10 bottom-[-45px] h-40 w-72 rounded-full bg-[#873d9b]/40 blur-3xl" />
