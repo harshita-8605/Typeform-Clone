@@ -38,6 +38,7 @@ export default function WorkspacePage() {
   const [renameWorkspaceOpen, setRenameWorkspaceOpen] = useState(false);
   const [workspaceToRename, setWorkspaceToRename] = useState("");
   const workspaceInputRef = React.useRef<HTMLInputElement>(null);
+  const isDefaultWorkspace = selectedWorkspace === workspaceNames[0];
 
   const fetchForms = useCallback(async () => {
     setIsLoading(true);
@@ -288,7 +289,7 @@ export default function WorkspacePage() {
               </button>
               <div className="flex items-center gap-1 pr-2">
                 <span className="text-xs text-[#777]">
-                  {workspace === "My workspace" ? forms.length : 0}
+                  {workspace === workspaceNames[0] ? forms.length : 0}
                 </span>
                 <button
                   type="button"
@@ -375,12 +376,12 @@ export default function WorkspacePage() {
 
         <div className="relative rounded-lg border border-[#e5e5e2] bg-white">
           <FormsList
-            forms={selectedWorkspace === "My workspace" ? visibleForms : []}
+            forms={isDefaultWorkspace ? visibleForms : []}
             isLoading={isLoading}
             onRefresh={fetchForms}
           />
 
-          {!isLoading && (selectedWorkspace === "My workspace" ? forms.length === 0 : true) && (
+          {!isLoading && (isDefaultWorkspace ? forms.length === 0 : true) && (
             <div className="absolute inset-x-0 bottom-0 flex justify-center pointer-events-none -translate-y-4">
               <div className="pointer-events-auto">
                 <Button size="md" onClick={handleEmptyCreate}>
