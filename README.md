@@ -42,10 +42,43 @@ public `/f/[slug]` respondent links remain accessible without an account.
 4. Set `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and a long random
    `NEXTAUTH_SECRET`.
 
+   Creator API requests use a short-lived HMAC-signed bearer token issued by the
+   Next.js session and verified independently by FastAPI. Set the same
+   `BACKEND_AUTH_SECRET` in the frontend and backend environments. For local
+   development, copy `backend/.env.example` to `backend/.env` and use the same
+   value as `frontend/.env.local`.
+
 After login, creators are redirected to `/workspace`. In production, replace
 `NEXTAUTH_URL` and the Google redirect URI with the deployed frontend URL.
 
 `backend/seed.py` resolves the SQLite file relative to the backend itself, so it also works when invoked from the repository root as `backend/venv/bin/python backend/seed.py --reset`.
+
+### Deployment with the required stack
+
+Deploy `frontend/` as a Next.js project on Vercel and deploy `backend/` as a
+Python web service on Render using the included [`render.yaml`](./render.yaml).
+The Render service mounts a persistent disk at `/var/data`, so SQLite remains
+the database and survives service restarts. The first deployment creates the
+schema, applies Alembic migrations, and seeds the sample forms once.
+
+Set these Render variables:
+
+- `BACKEND_AUTH_SECRET`: the same long random value used by the frontend.
+- `CORS_ORIGINS`: the exact Vercel production URL, such as
+  `https://your-project.vercel.app`.
+
+Set these Vercel variables:
+
+- `NEXT_PUBLIC_API_URL`: the deployed Render API URL.
+- `NEXTAUTH_URL`: the deployed Vercel URL.
+- `NEXTAUTH_SECRET`: a long random secret.
+- `BACKEND_AUTH_SECRET`: the same value configured on Render.
+- `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`: production Google OAuth credentials.
+
+Add `https://your-project.vercel.app/api/auth/callback/google` to the Google
+OAuth authorized redirect URIs. SQLite is intentionally retained for this
+assignment; the persistent Render disk is required for production data
+durability.
 
 ## What is included
 
@@ -112,6 +145,11 @@ Response submission accepts typed answer columns (`value_text`, `value_number`, 
 ```bash
 cd frontend && npm run build
 cd ../backend && python seed.py --reset
+alembic upgrade head
+python -m pytest -q
 ```
 
-The seed output prints public URLs for both generated forms. Creator API requests are scoped to the authenticated Google email through the `X-Creator-Email` header; public form filling has no auth requirement. Existing databases receive the nullable `owner_email` column automatically at API startup.
+The seed output prints public URLs for both generated forms. Creator API
+requests require a verified bearer token and are scoped to the authenticated
+Google email; public form filling has no auth requirement. Apply future schema
+changes with `alembic upgrade head`.

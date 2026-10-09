@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: typeform-clone-api
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: >-
+      python -c "from app.database import Base, engine; from app import models;
+      Base.metadata.create_all(bind=engine)" &&
+      alembic upgrade head &&
+      if [ ! -f "${SQLITE_DATA_DIR}/.seeded" ]; then
+      python seed.py && touch "${SQLITE_DATA_DIR}/.seeded";
+      fi &&
+      uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: SQLITE_DATA_DIR
+        value: /var/data
+      - key: BACKEND_AUTH_SECRET
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+    disk:
+      name: typeform-clone-sqlite
+      mountPath: /var/data
+      sizeGB: 1
