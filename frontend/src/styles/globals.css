@@ -64,6 +64,7 @@ html[data-theme="dark"] .bg-\[\#efefed\] {
 
 html[data-theme="dark"] .text-\[\#242424\],
 html[data-theme="dark"] .text-\[\#20201f\],
+html[data-theme="dark"] .text-\[\#292927\],
 html[data-theme="dark"] .text-\[\#403343\],
 html[data-theme="dark"] .text-\[\#463d49\],
 html[data-theme="dark"] .text-\[\#454541\],
@@ -74,6 +75,8 @@ html[data-theme="dark"] .text-gray-600 {
 }
 
 html[data-theme="dark"] .text-\[\#777\],
+html[data-theme="dark"] .text-\[\#777772\],
+html[data-theme="dark"] .text-\[\#575754\],
 html[data-theme="dark"] .text-\[\#6e6e69\],
 html[data-theme="dark"] .text-\[\#686864\],
 html[data-theme="dark"] .text-\[\#5f5f5c\],
@@ -85,6 +88,7 @@ html[data-theme="dark"] .text-gray-400 {
 html[data-theme="dark"] .border-\[\#e5e5e2\],
 html[data-theme="dark"] .border-\[\#e8e8e6\],
 html[data-theme="dark"] .border-\[\#dededb\],
+html[data-theme="dark"] .border-\[\#ececea\],
 html[data-theme="dark"] .border-gray-100,
 html[data-theme="dark"] .border-gray-200 {
   border-color: rgb(var(--tf-border)) !important;
