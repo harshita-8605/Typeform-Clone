@@ -37,6 +37,9 @@ export default function WorkspacePage() {
   const [workspaceLoading, setWorkspaceLoading] = useState(false);
   const [renameWorkspaceOpen, setRenameWorkspaceOpen] = useState(false);
   const [workspaceToRename, setWorkspaceToRename] = useState("");
+  const [deleteWorkspaceOpen, setDeleteWorkspaceOpen] = useState(false);
+  const [deleteWorkspaceLoading, setDeleteWorkspaceLoading] = useState(false);
+  const [workspaceFormAssignments, setWorkspaceFormAssignments] = useState<Record<string, number[]>>({});
   const workspaceInputRef = React.useRef<HTMLInputElement>(null);
   const isDefaultWorkspace = selectedWorkspace === workspaceNames[0];
 
@@ -80,6 +83,13 @@ export default function WorkspacePage() {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.every((name) => typeof name === "string")) {
           setWorkspaceNames(Array.from(new Set(["My workspace", ...parsed])));
+        }
+      }
+      const savedAssignments = window.localStorage.getItem("typeform-workspace-form-assignments");
+      if (savedAssignments) {
+        const parsedAssignments = JSON.parse(savedAssignments);
+        if (parsedAssignments && typeof parsedAssignments === "object") {
+          setWorkspaceFormAssignments(parsedAssignments);
         }
       }
     } catch {
@@ -160,6 +170,16 @@ export default function WorkspacePage() {
     const next = workspaceNames.map((workspace) =>
       workspace === workspaceToRename ? name : workspace
     );
+    const nextAssignments = { ...workspaceFormAssignments };
+    if (nextAssignments[workspaceToRename]) {
+      nextAssignments[name] = nextAssignments[workspaceToRename];
+      delete nextAssignments[workspaceToRename];
+      setWorkspaceFormAssignments(nextAssignments);
+      window.localStorage.setItem(
+        "typeform-workspace-form-assignments",
+        JSON.stringify(nextAssignments)
+      );
+    }
     setWorkspaceNames(next);
     if (selectedWorkspace === workspaceToRename) {
       setSelectedWorkspace(name);
@@ -168,6 +188,60 @@ export default function WorkspacePage() {
     setWorkspaceLoading(false);
     setRenameWorkspaceOpen(false);
     showToast("Workspace renamed", "success");
+  };
+
+  const openWorkspaceDelete = (name: string) => {
+    setWorkspaceToRename(name);
+    setDeleteWorkspaceLoading(false);
+    setDeleteWorkspaceOpen(true);
+  };
+
+  const workspaceFormIds = (name: string) => {
+    if (name === workspaceNames[0]) {
+      const assignedIds = new Set(Object.values(workspaceFormAssignments).flat());
+      return forms
+        .filter((form) => !assignedIds.has(form.id))
+        .map((form) => form.id)
+        .concat(workspaceFormAssignments[name] || []);
+    }
+    return workspaceFormAssignments[name] || [];
+  };
+
+  const currentWorkspaceForms = visibleForms.filter((form) =>
+    workspaceFormIds(selectedWorkspace).includes(form.id)
+  );
+
+  const submitWorkspaceDelete = async () => {
+    const name = workspaceToRename;
+    if (workspaceNames.length <= 1) {
+      showToast("You must keep at least one workspace", "error");
+      return;
+    }
+    const ids = workspaceFormIds(name);
+    setDeleteWorkspaceLoading(true);
+    try {
+      await Promise.all(ids.map((id) => api.delete(`/api/forms/${id}`)));
+      const nextNames = workspaceNames.filter((workspace) => workspace !== name);
+      const nextAssignments = { ...workspaceFormAssignments };
+      delete nextAssignments[name];
+      const fallbackWorkspace = nextNames[0];
+      setWorkspaceNames(nextNames);
+      setWorkspaceFormAssignments(nextAssignments);
+      setSelectedWorkspace((selected) => selected === name ? fallbackWorkspace : selected);
+      window.localStorage.setItem("typeform-workspaces", JSON.stringify(nextNames));
+      window.localStorage.setItem(
+        "typeform-workspace-form-assignments",
+        JSON.stringify(nextAssignments)
+      );
+      setDeleteWorkspaceOpen(false);
+      await fetchForms();
+      showToast("Workspace and its forms deleted", "success");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to delete workspace";
+      showToast(msg, "error");
+    } finally {
+      setDeleteWorkspaceLoading(false);
+    }
   };
 
   const onWorkspaceKeyDown = (
@@ -196,6 +270,18 @@ export default function WorkspacePage() {
       if (!newForm || typeof newForm.id !== "number") {
         throw new Error("Failed to create form");
       }
+      const nextAssignments = {
+        ...workspaceFormAssignments,
+        [selectedWorkspace]: [
+          ...(workspaceFormAssignments[selectedWorkspace] || []),
+          newForm.id,
+        ],
+      };
+      setWorkspaceFormAssignments(nextAssignments);
+      window.localStorage.setItem(
+        "typeform-workspace-form-assignments",
+        JSON.stringify(nextAssignments)
+      );
       showToast("Form created", "success");
       setCreateOpen(false);
       router.push(`/builder/${newForm.id}`);
@@ -303,6 +389,20 @@ export default function WorkspacePage() {
                     <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
                   </svg>
                 </button>
+                <button
+                  type="button"
+                  onClick={() => openWorkspaceDelete(workspace)}
+                  aria-label={`Delete ${workspace}`}
+                  title={`Delete ${workspace}`}
+                  className="rounded p-1 text-[#a4482c] opacity-0 transition-opacity hover:bg-white group-hover:opacity-100 focus:opacity-100"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="m19 6-1 14H6L5 6" />
+                    <path d="M10 11v6M14 11v6" />
+                    <path d="M9 6V4h6v2" />
+                  </svg>
+                </button>
               </div>
             </div>
           ))}
@@ -376,12 +476,12 @@ export default function WorkspacePage() {
 
         <div className="relative rounded-lg border border-[#e5e5e2] bg-white">
           <FormsList
-            forms={isDefaultWorkspace ? visibleForms : []}
+            forms={currentWorkspaceForms}
             isLoading={isLoading}
             onRefresh={fetchForms}
           />
 
-          {!isLoading && (isDefaultWorkspace ? forms.length === 0 : true) && (
+          {!isLoading && currentWorkspaceForms.length === 0 && (
             <div className="absolute inset-x-0 bottom-0 flex justify-center pointer-events-none -translate-y-4">
               <div className="pointer-events-auto">
                 <Button size="md" onClick={handleEmptyCreate}>
@@ -518,6 +618,38 @@ export default function WorkspacePage() {
           placeholder="Workspace name"
           className="input-base"
         />
+      </Modal>
+
+      <Modal
+        open={deleteWorkspaceOpen}
+        onClose={() => !deleteWorkspaceLoading && setDeleteWorkspaceOpen(false)}
+        title="Delete workspace?"
+        footer={
+          <>
+            <Button
+              variant="outline"
+              size="md"
+              onClick={() => setDeleteWorkspaceOpen(false)}
+              disabled={deleteWorkspaceLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              size="md"
+              onClick={submitWorkspaceDelete}
+              isLoading={deleteWorkspaceLoading}
+            >
+              Delete workspace
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm leading-6 text-[rgb(var(--text-secondary))]">
+          Are you sure you want to delete <strong>{workspaceToRename}</strong>?
+          This will permanently delete all forms included in this workspace,
+          along with their responses. This action cannot be undone.
+        </p>
       </Modal>
     </div>
   );
