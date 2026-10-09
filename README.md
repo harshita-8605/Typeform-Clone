@@ -13,14 +13,10 @@ and review the results. Respondents do not need to create an account.
 
 ## Live demo
 
-- **Frontend:** [https://typeform-clone-black.vercel.app](https://typeform-clone-black.vercel.app)
-- **Creator login:** [https://typeform-clone-black.vercel.app/login](https://typeform-clone-black.vercel.app/login)
-- **Backend API:** [https://typeform-clone-api-mnow.onrender.com](https://typeform-clone-api-mnow.onrender.com)
+- **Vercel:** [https://typeform-clone-black.vercel.app](https://typeform-clone-black.vercel.app)
+
 - **API documentation:** [https://typeform-clone-api-mnow.onrender.com/docs](https://typeform-clone-api-mnow.onrender.com/docs)
 
-The frontend is deployed on Vercel and the FastAPI backend is deployed on
-Render. SQLite is intentionally used because it is part of the assignment
-requirements.
 
 ## What the application does
 
