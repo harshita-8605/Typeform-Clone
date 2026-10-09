@@ -45,9 +45,9 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
-        serif: ["var(--font-serif)", "Georgia", "ui-serif", "serif"],
-        display: ["var(--font-serif)", "Georgia", "ui-serif", "serif"],
+        sans: ["ui-sans-serif", "system-ui", "sans-serif"],
+        serif: ["Georgia", "ui-serif", "serif"],
+        display: ["Georgia", "ui-serif", "serif"],
       },
       borderRadius: {
         "2xl": "1rem",

@@ -1,6 +1,6 @@
 // Typeform visual constants — single source of truth.
 // Mirrored as CSS variables in globals.css :root for Tailwind.
-// Fraunces (Google Fonts serif) = Tobias analog; Inter (Google sans) = TWK Lausanne analog.
+// System font stacks avoid a build-time dependency on an external font provider.
 
 export const TF_COLORS = {
   purple: "#601FEE",
@@ -34,8 +34,8 @@ export const TF_SHADOWS = {
 } as const;
 
 export const TF_FONTS = {
-  sans: "var(--font-sans)",
-  serif: "var(--font-serif)",
+  sans: "ui-sans-serif, system-ui, sans-serif",
+  serif: "Georgia, ui-serif, serif",
   sizes: {
     body: "16px",
     label: "14px",
