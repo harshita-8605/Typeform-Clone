@@ -76,9 +76,15 @@ export function DropdownMenu({
     </button>
   );
 
+  const triggerElement = trigger
+    ? React.cloneElement(trigger as React.ReactElement<{ onClick?: () => void }>, {
+        onClick: () => setOpen((o) => !o),
+      })
+    : defaultTrigger;
+
   return (
     <div ref={containerRef} className={cn("relative inline-block", className)}>
-      <div onClick={() => setOpen((o) => !o)}>{trigger ?? defaultTrigger}</div>
+      {triggerElement}
       {open && (
         <div
           role="menu"

@@ -71,7 +71,9 @@ export default function WorkspacePage() {
       .sort((a, b) => {
         if (sort === "title") return a.title.localeCompare(b.title);
         if (sort === "responses") return b.response_count - a.response_count;
-        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+        const parseTimestamp = (value: string) =>
+          new Date(/(?:Z|[+-]\d{2}:?\d{2})$/i.test(value) ? value : `${value}Z`).getTime();
+        return parseTimestamp(b.updated_at) - parseTimestamp(a.updated_at);
       });
   }, [forms, search, sort]);
 
@@ -247,7 +249,7 @@ export default function WorkspacePage() {
             </label>
           </div>
 
-        <div className="relative rounded-lg border border-[#e5e5e2] bg-white overflow-hidden">
+        <div className="relative rounded-lg border border-[#e5e5e2] bg-white">
           <FormsList
             forms={visibleForms}
             isLoading={isLoading}

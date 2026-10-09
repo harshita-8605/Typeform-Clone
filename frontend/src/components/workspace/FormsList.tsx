@@ -26,7 +26,10 @@ interface FormsListProps {
 
 function formatTimeAgo(isoString: string): string {
   const now = Date.now();
-  const then = new Date(isoString).getTime();
+  const normalized = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(isoString)
+    ? isoString
+    : `${isoString}Z`;
+  const then = new Date(normalized).getTime();
   if (Number.isNaN(then)) return isoString;
   const diffMs = Math.max(0, now - then);
   const mins = Math.floor(diffMs / 60000);

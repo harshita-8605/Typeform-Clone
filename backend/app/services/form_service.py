@@ -216,6 +216,7 @@ def upsert_form_questions(
             new_q = Question(form_id=form_id, **q_dict)
             db.add(new_q)
 
+    db_form.updated_at = datetime.utcnow()
     db.commit()
     db.refresh(db_form)
     return db_form.questions
@@ -225,8 +226,9 @@ def reorder_questions(
     db: Session,
     form_id: int,
     ordered_ids: List[int],
+    owner_email: Optional[str] = None,
 ) -> Optional[List[Question]]:
-    db_form = get_form(db, form_id)
+    db_form = get_form(db, form_id, owner_email)
     if not db_form:
         return None
 
@@ -242,6 +244,7 @@ def reorder_questions(
         if qid in q_map:
             q_map[qid].order_index = idx
 
+    db_form.updated_at = datetime.utcnow()
     db.commit()
     db.refresh(db_form)
     return db_form.questions
