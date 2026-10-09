@@ -33,7 +33,7 @@ export function ThemeToggle() {
       onClick={() => setDark((value) => !value)}
       aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
       title={dark ? "Switch to light mode" : "Switch to dark mode"}
-      className="fixed right-5 top-5 z-[80] inline-flex h-10 w-10 items-center justify-center rounded-md border border-[rgb(var(--tf-border-strong))] bg-[rgb(var(--tf-canvas))] text-[rgb(var(--tf-text))] shadow-sm transition-colors hover:bg-[rgb(var(--tf-bg))]"
+      className="fixed right-5 top-20 z-[80] inline-flex h-10 w-10 items-center justify-center rounded-md border border-[rgb(var(--tf-border-strong))] bg-[rgb(var(--tf-canvas))] text-[rgb(var(--tf-text))] shadow-sm transition-colors hover:bg-[rgb(var(--tf-bg))]"
     >
       <svg
         width="18"

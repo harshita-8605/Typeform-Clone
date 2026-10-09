@@ -53,8 +53,13 @@ html[data-theme="dark"] body {
 html[data-theme="dark"] .bg-white,
 html[data-theme="dark"] .bg-\[\#fcfcfb\],
 html[data-theme="dark"] .bg-\[\#fbfbfc\],
-html[data-theme="dark"] .bg-\[\#f8f8f8\] {
+html[data-theme="dark"] .bg-\[\#f8f8f8\],
+html[data-theme="dark"] .bg-\[\#efefed\] {
   background-color: rgb(var(--tf-canvas)) !important;
+}
+
+html[data-theme="dark"] .bg-\[\#efefed\] {
+  background-color: rgb(58 49 65) !important;
 }
 
 html[data-theme="dark"] .text-\[\#242424\],
@@ -214,7 +219,7 @@ html[data-theme="dark"] select {
 
   /* ---------- Toast ---------- */
   .tf-toast {
-    @apply relative flex items-start gap-3 bg-[#FAF9FC] text-[rgb(var(--tf-text))] shadow-[var(--tf-shadow-toast)] rounded-[8px] px-4 py-3 pr-10 overflow-hidden max-w-sm;
+    @apply relative flex items-start gap-3 bg-[rgb(var(--tf-bg))] text-[rgb(var(--tf-text))] shadow-[var(--tf-shadow-toast)] rounded-[8px] px-4 py-3 pr-10 overflow-hidden max-w-sm;
   }
   .tf-toast::before {
     content: "";
