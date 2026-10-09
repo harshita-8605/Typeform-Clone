@@ -333,14 +333,11 @@ alembic upgrade head
 | Google-only creator login | Implemented |
 | Toasts, modals, inline editing, and Typeform-style UI | Implemented |
 | Logic jumps, integrations, collaboration, payments, and file upload | Coming Soon placeholders |
-| Custom themes and CSV export | Not included in the current version |
 | Dark mode | Implemented |
 
 ## Assumptions and limitations
 
 - Google login is used for creators; respondents do not need accounts.
-- Workspace names are a frontend feature for this assignment and are stored in
-  local storage rather than a separate backend workspace table.
 - SQLite is retained to match the required technical stack.
 - The deployed free-tier service can experience a cold start.
 - The hosted database uses SQLite and depends on the configured Render
